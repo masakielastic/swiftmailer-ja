@@ -1,48 +1,29 @@
-Introduction
-============
+はじめに
+========
 
-Swift Mailer is a component-based library for sending e-mails from PHP
-applications.
+Swift Mailer は PHP アプリケーションからメールを送信するためのコンポーネントベースのライブラリです。
 
 >**NOTE**
->This book refers to version 4.0 of the Swift Mailer library. If you are looking
->for information about (the now deprecated) version 3, you should refer to the
->old wiki found [online][1].
+>この本は Swift Mailer ライブラリのバージョン 4.0 を参照しています。バージョン 3 (現在は廃止) の情報を探しているのであれば、[オンライン][1]で見つかる古いウィキを参照します。
 
-Organization of this Book
--------------------------
+この本の構成
+------------
 
-This book has been written so that those who need information quickly are able
-to find what they need, and those who wish to learn more advanced topics can
-read deeper into each chapter.
+この本は、必要な情報を素早く見つけたい方、より高度なトピックを学びたい方がそれぞれの章をじっくり読めるように書きました。
 
-The book begins with an overview of Swift Mailer, discussing what's included
-in the package and preparing you for the remainder of the book.
+この本は Swift Mailer の概要から始めます。何がパッケージに入っているのか、本の残りの部分を読むための準備をします。
 
-It is possible to read this user guide just like any other book (from
-beginning to end). Each chapter begins with a discussion of the contents it
-contains, followed by a short code sample designed to give you a head start.
-As you get further into a chapter you will learn more about Swift Mailer's
-capabilities, but often you will be able to head directly to the topic you
-wish to learn about.
+このユーザーガイドを (最初から最後まで) ほかの本として読むこともできます。それぞれの章は含まれる内容の検討から始まり、効率よく始められるように設計された短いコードサンプルが続きます。章を読み進めるごとに Swift Mailer の機能を詳しく学びますが、学びたいトピックに真っ先に進むことができます。
 
-Throughout this book you will be presented with code samples, which most
-people should find ample to implement Swift Mailer appropriately in their own
-projects. We will also use diagrams where appropriate, and where we believe
-readers may find it helpful we will discuss some related theory, including
-reference to certain documents you are able to find online.
+この本を通してこの本はコードサンプルで表現されます。あなた独自のプロジェクトで Swift Mailer を適切に実装するためのサンプルが見つかります。適切な場所で読者の方が便利だと思ってくださるようなダイアグラムも使います。オンラインで見つけられるドキュメントの参照も含めて、関連する理論も検討します。
 
-### Code Samples
+### コードサンプル
 
-Code samples presented in this book will be displayed on a different colored
-background in a monospaced font. Samples are not to be taken as copy & paste
-code snippets.
+この本で表されるコードサンプルは異なる色の背景のなかで等幅フォントで表示されます。サンプルはコードスニペットをコピー＆ペーストできるようには書かれていません。
 
-Code examples are used through the book to clarify what is written in text.
-They will sometimes be usable as-is, but they should always be taken as
-outline/pseudo code only.
+コードサンプルは何がテキストに書かれているのかを明らかにするために使われます。ときにはこれらはそのまま役に立ちますが、常に概要/擬似コードとしてのみ読みます。
 
-A code sample will look like this:
+コードのサンプルは次のようになります:
 
     [php]
     class AClass
@@ -58,86 +39,47 @@ A code sample will look like this:
 
     */
 
-The presence of 3 dots `...` in a code sample indicates that we have left out
-a chunk of the code for brevity, they are not actually part of the code.
+コードサンプルの 3 つのドット: `...` の存在は 簡潔性のためにコードの塊を省略していることを示しており、実際にはこれらはコードの一部ではありません。
 
-We will often place multi-line comments `/* ... */` in the code so that we can
-show alternative ways of achieving the same result.
+同じ結果を得る別の方法を示すためにコードのなかに複数行のコメント: `/* ... */` を入れることがよくあります。
 
-You should read the code examples given and try to understand them. They are
-kept concise so that you are not overwhelmed with information.
+コードの例を理解するために読み試します。読者が情報量に圧倒されないようにこれらのコードは簡潔に保たれています。
 
-History of Swift Mailer
+Swift Mailer の歴史
+-------------------
+
+Swift Mailer の起源は 2005 年に SMTP を通してメールを送信するひとつのクラスのプロジェクトに遡ります。これが成長して今日開発されている柔軟なコンポーネントベースのライブラリになりました。
+
+Chris Corbyn は最初にほかの開発者からのコメントをもらうために Web [フォーラム][2] で Swift Mailer を投稿しました。これは十分にサポートされるオープンソースのプロジェクトとして意図されたものではありませんでした。しかしフォーラムのメンバーがこれを採用し利用するようになりました。
+
+ほかのたくさんの"明らかに"見つからない機能に加えて、真っ先に来た機能のリクエストは添付の追加と SMTP 認証を使う機能でした。唯一の代わりは PHPMailer でしたが、真新しいツールを表に出すのによい時期でした。Chris は、既存の単独クラスとは異なり、PHPMailer によるレガシーな PHP 4 のアプローチではなく、よりコンポーネントベースかつ PHP 5 のアプローチで作業を始めました。
+
+フォーラムのメンバーは Chris がこのプロジェクトで取り組んだコードにたくさんのアドバイスと批評を提供し、2005 年と 2006 年にライブラリのバージョン 2 と 3 がリリースされました。より小さなクラスに解体されより柔軟性がありプラグインをサポートするようになりました。この日までに Swift Mailer チームはフォーラムとメールの両方でユーザーからのたくさんの機能リクエストを受け取ります。
+
+2008 年まで Chris は Swift Mailer の唯一の開発者でしたが、2009 年に入り 2人の経験のあり彼がよく知っている 2 人の開発者: Paul Annesley と Christopher Thompson のサポートを得ました。これは熱烈に歓迎される変更でした。
+
+2009 年 9 月に、Chris は Swift Mailer のメンテナンスを Fabien Potencier に譲りました。
+
+Now 2009 年に Swift Mailer の 4 番目のメージャーバージョンはユーザービリティの観点と開発の観点の両方からこれまで以上にオブジェクト指向で柔軟です。
+
+Swift Mailer は"終わった"と呼ぶ状態にはけっしてありません。背後で行われるリファクタリングに加えてライブラリに追加できる機能はまだたくさんあります。
+
+これらはライブラリです！
 -----------------------
 
-Swift Mailer began back in 2005 as a one-class project for sending mail over
-SMTP. It has since grown into the flexible component-based library that is in
-development today.
+Swift Mailer はアプリケーションではありません - これらはライブラリです。
 
-Chris Corbyn first posted Swift Mailer on a web [forum][2] asking for comments
-from other developers. It was never intended as a fully supported open source
-project, but members of the forum began to adopt it and make use of it.
+多くの経験を積んだ開発者には、これは明らかなものでしょうが、説明する価値があります。多くの人が Swift Mailer の存在理由の観点から完全に間違った指摘をします。
 
-Very quickly feature requests were coming for the ability to add attachments
-and use SMTP authentication, along with a number of other "obvious" missing
-features. Considering the only alternative was PHPMailer it seemed like a good
-time to bring some fresh tools to the table. Chris began working towards a
-more component based, PHP5-like approach unlike the existing single-class,
-legacy PHP4 approach taken by PHPMailer.
+これはアプリケーションではありません。これはグラフィカルユーザーインターフェイスを持ちません。これは Web ブラウザーで直接開くことはできません。
 
-Members of the forum offered a lot of advice and critique on the code as he
-worked through this project and released versions 2 and 3 of the library in
-2005 and 2006, which by then had been broken down into smaller classes
-offering more flexibility and supporting plugins. To this day the Swift Mailer
-team still receive a lot of feature requests from users both on the forum and
-in by email.
+これはライブラリ (もしくはフレームワーク) です。これはとても複雑なことをしなくて済むようにするたくさんのクラスを提供します。アプリケーションがメールを送信する機能を持てるようにアプリケーションのなかで Swift Mailer を"使い"ます。
 
-Until 2008 Chris was the sole developer of Swift Mailer, but entering 2009 he
-gained the support of two experienced developers well-known to him: Paul
-Annesley and Christopher Thompson. This has been an extremely welcome change.
+ライブラリのコンポーネントベースの構造は異なる方法で自由に実装できるのと使いたいものを選び出せることを意味します。
 
-As of September 2009, Chris handed over the maintenance of Swift Mailer to
-Fabien Potencier.
+一方でアプリケーションは (ブログもしくはフォーラム) はすでに特定の方法で "組み立てられ"、(通常は) グラフィカルユーザーインターフェイスを提供したいがいはあなた独自のアプリケーションとの大きな統合は提供しません。
 
-Now 2009 and in its fourth major version Swift Mailer is more object-oriented
-and flexible than ever, both from a usability standpoint and from a
-development standpoint.
-
-By no means is Swift Mailer ready to call "finished". There are still many
-features that can be added to the library along with the constant refactoring
-that happens behind the scenes.
-
-It's a Library!
----------------
-
-Swift Mailer is not an application - it's a library.
-
-To most experienced developers this is probably an obvious point to make, but
-it's certainly worth mentioning. Many people often contact us having gotten
-the completely wrong end of the stick in terms of what Swift Mailer is
-actually for.
-
-It's not an application. It does not have a graphical user interface. It
-cannot be opened in your web browser directly.
-
-It's a library (or a framework if you like). It provides a whole lot of
-classes that do some very complicated things, so that you don't have to. You
-"use" Swift Mailer within an application so that your application can have the
-ability to send emails.
-
-The component-based structure of the library means that you are free to
-implement it in a number of different ways and that you can pick and choose
-what you want to use.
-
-An application on the other hand (such as a blog or a forum) is already "put
-together" in a particular way, (usually) provides a graphical user interface
-and most likely doesn't offer a great deal of integration with your own
-application.
-
-Embrace the structure of the library and use the components it offers to your
-advantage. Learning what the components do, rather than blindly copying and
-pasting existing code will put you in a great position to build a powerful
-application!
+ライブラリの構造を尊重しこれが利点を提供するコンポーネントを使ってください。やみくもに既存のコードをコピー＆ペーストするよりも、コンポーネントが何を行うのか学ぶことで強力なアプリケーションを構築するための大きな力になります！
 
 [1]: http://swiftmailer.org/wikidocs/
 [2]: http://forums.devnetwork.net/
