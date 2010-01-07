@@ -1,151 +1,92 @@
-Library Overview
+ライブラリの概要
 ================
 
-Most features (and more) of your every day mail client software are provided
-by Swift Mailer, using object-oriented PHP code as the interface.
+日々のメールクライアントソフトウェアの大抵の機能はインターフェイスとしてオブジェクト指向の PHP コードを使うことで、Swift Mailer によって提供されます。
 
-In this chapter we will take a short tour of the various components, which put
-together form the Swift Mailer library as a whole. You will learn key
-terminology used throughout the rest of this book and you will gain a little
-understanding of the classes you will work with as you integrate Swift Mailer
-into your application.
+この章では全体で Swift Mailer ライブラリを形成しているさまざまなコンポーネントをさっと巡ります。この本の全体で使われる重要な用語を学び Swift Mailer をアプリケーションに統合するためのクラスの理解を少し得ます。
 
-This chapter is intended to prepare you for the information contained in the
-subsequent chapters of this book. You may choose to skip this chapter if you
-are fairly technically minded, though it is likely to save you some time in
-the long run if you at least read between the lines here.
+この章はこの本の続く章に含まれる情報のための準備をすることを意図しています。かなりの技術指向であれば、この章を飛ばすこともできますが、少なくともここでの行間を読めば長い目である程度の時間の節約になります。
 
-System Requirements
+システム要件
+------------
+
+Swift Mailer を動かす最小限の要件はごく最小のもので簡単に実現できます。歴史では、Swift Mailer は PHP 4 と PHP 5 の両方をサポートしていましたが、平行した開発ワークフローが続きました。第4番目のバージョンでは、 PHP 4 のサポートは作者の Zend によって[公式に][1]打ち切られたので、Swift Mailer は PHP 5.2 もしくはそれ以降の PHP が動くサーバーで動きます。
+
+ライブラリは可能な限り PHP 5 のプロジェクトと連携できることを目的とします:
+
+ * PHP 5.2 もしくはそれ以降で、SPL エクステンションつき (標準)
+
+ * SMTP リモートサーバーへの接続にアクセスできる限定的なネットワーク権限
+
+ * 8 MB もしくはそれ以上のメモリ制限 (Swift Mailer はおよそ 2 MB を使います)
+
+コンポーネントの分析
 -------------------
 
-The basic requirements to operate Swift Mailer are extremely minimal and
-easily achieved. Historically, Swift Mailer has supported both PHP 4 and PHP 5
-by following a parallel development workflow. Now in it's fourth major
-version, and with PHP 4 support [officially][1] dropped by its makers at Zend,
-Swift Mailer operates on servers running PHP 5.2 or higher.
+Swift Mailer は多くのクラスで構成されます。それぞれのクラスは実行するよう設計されたタスクを記述する一般的な "component" グループに分類されます。
 
-The library aims to work with as many PHP 5 projects as possible:
+この本のセクションでは Swift Mailer を形成するコンポーネントを手短に見ます。
 
- * PHP 5.2 or higher, with the SPL extension (standard)
+### メーラー
 
- * Limited network access to connect to remote SMTP servers
+メーラークラスの `Swift_Mailer` はほかのコンポーネントのすべてがお互いに面するライブラリの中心のクラスです。`Swift_Mailer` はメッセージディスパッチャーのソートとしてふるまい、すべての対象の受信者にメッセージを配信する内部のトランスポートとコミュニケーションします。
 
- * 8 MB or more memory limit (Swift Mailer uses around 2 MB)
+Swift Mailer のソースコードを掘り下げると `Swift_Mailer` 自身はとてもまばらであることがわかります。これはたいていのタスクと理論においてほかのオブジェクトに異常を行い、Swift Mailer の内部をよく知っている場合、このクラスを完全に回避できます。しかしながらこのようなことはおすすめしません &#8211; このクラスが存在する理由は複数あります:
 
-Component Breakdown
--------------------
+  * 使われるトランスポートに関わらず、一貫性のために
 
-Swift Mailer is made up of many classes. Each of these classes can be grouped
-into a general "component" group which describes the task it is designed to
-perform.
+  * 内部 API の変更が行われるイベントで内部から抽象化を提供するため
 
-We'll take a brief look at the components which form Swift Mailer in this section of the book.
+  * 内部 API の面の便利なラッパーを提供するため
 
-### The Mailer
+`Swift_Mailer` のインスタンスはメッセージを送信する前に作られます。
 
-The mailer class, `Swift_Mailer` is the central class in the
-library where all of the other components meet one another.
-`Swift_Mailer` acts as a sort of message dispatcher,
-communicating with the underlying Transport to deliver your Message to all
-intended recipients.
+### トランスポート
 
-If you were to dig around in the source code for Swift Mailer you'd notice
-that `Swift_Mailer` itself is pretty bare. It delegates to
-other objects for most tasks and in theory, if you knew the internals of Swift
-Mailer well you could by-pass this class entirely. We wouldn't advise doing
-such a thing however &#8211; there are reasons this class exists:
+トランスポートはメッセージを配信するためにサーバーとコミュニケーションを行う責務を担う Swift Mailer のクラスです。Swift Mailer のトランスポートの種類はいくつかあります。これらすべては `Swift_Transport` インターフェイスを実装し内部で `start()`、`stop()` と `send()` メソッドを提供します。
 
-  * for consistency, regardless of the Transport used
+大抵の場合トランスポートが水面下でどのように動くのか知る必要はありません。必要なのはこのインスタンスの作り方と、環境でどれを使えばよいのかだけを知ることだけです。 
 
-  * to provide abstraction from the internals in the event internal API
-    changes are made
+| クラス | 機能     | よい点とわるい点 |
+| ------ | -------- | --------------- |
+| `Swift_SmtpTransport` | SMTP を通してメッセージを送信する; 認証をサポートする; 暗号化をサポートする | とてもポータブルである; 楽しく予測可能な結果; よいフィードバックを提供する |
+| `Swift_SendmailTransport` | ローカルにインストールされた `sendmail` 実行ファイルとコミュニケーションする (Linux/UNIX) | すばやく動かせる; SMTP よりも不正確なフィードバックを提供する; `sendmail` のインストールが必要 |
+| `Swift_MailTransport` | PHP の組み込み関数の `mail()` を使う | とてもポータブルである; 潜在的に予測不可能な結果; とても弱いフィードバックを提供する 
+| `Swift_LoadBalancedTransport` | 負荷軽減を管理するほかのトランスポートのコレクションを通して循環を行う | トランスポートが機能しない場合グレースフルフォールバックを提供する (たとえば SMTP サーバーがダウンする); 仕事を分散することでリモートサービスでのロードを抑える |
+| `Swift_FailoverTransport` | 高い利用可能性を提供するほかのトランスポートのコレクションと連携する | トランスポートが失敗する場合グレースフルフォールバックを提供する (たとえば SMTP サーバーがダウンする) |
 
-  * to provide convenience wrappers around aspects of the internal API
+### MIME エンティティ
 
-An instance of `Swift_Mailer` is created by the developer
-before sending any Messages.
+メッセージの一部を形成するすべてのものは MIME エンティティと呼ばれます。Swift Mailer のすべての MIME エンティティは機能の共通セットを共有します。添付物や MIME 部分など異なる目的の用途を提供するさまざまな種類の MIME エンティティがあります。
 
-### Transports
+メールメッセージは異なる結果を実現するために異なる方法で結びつけられた相対的にシンプルなエンティティで構成されます。これらのエンティティのすべては同じアウトラインを持ちますが異なる目的を提供します。メッセージ自身は MIME エンティティとして定義できます、添付は MIME エンティティで、すべての MIME 部分は MIME エンティティ &#8211; などです &#8230;
 
-Transports are the classes in Swift Mailer that are responsible for
-communicating with a service in order to deliver a Message. There are several
-types of Transport in Swift Mailer, all of which implement the Swift_Transport
-interface and offer underlying start(), stop() and send() methods.
-
-Typically you will not need to know how a Transport works under-the-surface,
-you will only need to know how to create an instance of one, and which one to
-use for your environment.
-
-| Class | Features | Pros/cons |
-| ----- | -------- | --------- |
-| `Swift_SmtpTransport` | Sends messages over SMTP; Supports Authentication; Supports Encryption | Very portable; Pleasingly predictable results; Provides good feedback |
-| `Swift_SendmailTransport` | Communicates with a locally installed `sendmail` executable (Linux/UNIX) | Quick time-to-run;  Provides less-accurate feedback than SMTP; Requires `sendmail` installation |
-| `Swift_MailTransport` | Uses PHP's built-in `mail()` function | Very portable; Potentially unpredictable results; Provides extremely weak feedback |
-| `Swift_LoadBalancedTransport` | Cycles through a collection of the other Transports to manage load-reduction | Provides graceful fallback if one Transport fails (e.g. an SMTP server is down); Keeps the load on remote services down by spreading the work |
-| `Swift_FailoverTransport` | Works in conjunction with a collection of the other Transports to provide high-availability | Provides graceful fallback if one Transport fails (e.g. an SMTP server is down) |
-
-### MIME Entities
-
-Everything that forms part of a Message is called a MIME Entity. All MIME
-entities in Swift Mailer share a common set of features. There are various
-types of MIME entity that serve different purposes such as Attachments and
-MIME parts.
-
-An e-mail message is made up of several relatively simple entities that are
-combined in different ways to achieve different results. All of these entities
-have the same fundamental outline but serve a different purpose. The Message
-itself can be defined as a MIME entity, an Attachment is a MIME entity, all
-MIME parts are MIME entities &#8211; and so on&#8230;
-
-The basic units of each MIME entity &#8211; be it the Message itself, or an
-Attachment &#8211; are its Headers and its body:
+それぞれの MIME エンティティ &#8211 の基本単位hメッセージそのもの、もしくは添付 &#8211; はヘッダーとボディです:
 
     Other-Header: Another value
 
     The body content itself
 
-The Headers of a MIME entity, and its body must conform to some strict
-standards defined by various RFC documents. Swift Mailer ensures that these
-specifications are followed by using various types of object, including
-Encoders and different Header types to generate the entity.
+MIME エンティティのヘッダーとボディはさまざまな RFC  ドキュメントで定義される厳しい標準に準拠しなければなりません。Swift Mailer はエンティティを生成するエンコーダーと異なる種類のヘッダー型を含めて、さまざまな種類のオブジェクトを使ってこれらの仕様がフォローされることを保証します。
 
-Each MIME component implements the base `Swift_Mime_MimeEntity`
-interface, which offers methods for retrieving Headers, adding new Headers,
-changing the Encoder, updating the body and so on&#8230;
+それぞれの MIME コンポーネントは `Swift_Mime_MimeEntity` インターフェイスを実装し、ヘッダー取得する、新しいヘッダーを追加する、エンコーダーを変更する、ボディを更新するためなどのメソッドを提供します &#8230;
 
-All MIME entities have one Header in common &#8211; the Content-Type Header,
-updated with the entity's `setContentType()` method.
+すべての MIME エンティティは共通で1つのヘッダー; Content-Type ヘッダーを持ちます &#8211。これはエンティティの `setContentType()` メソッドで更新できます。
 
-### Encoders
+### エンコーダー
 
-Encoders are used to transform the content of Messages generated in Swift
-Mailer into a format that is safe to send across the internet and that
-conforms to RFC specifications.
+エンコーダーは Swift Mailer によって生成されるメッセージの内容をインターネットにまたがって送信するのに安全で RFC の仕様に準拠するフォーマットに変換します。
 
-Generally speaking you will not need to interact with the Encoders in Swift
-Mailer &#8211; the correct settings will be handled by the library itself.
-However they are probably worth a brief mention in the event that you do want
-to play with them.
+一般的に言えば Swift Mailer のエンコーダーとやりとりする必要はありません &#8211; 正しい設定はライブラリ自身によって処理されます。しかしながらこれらで遊ぶ場合のためにこれらは手短に説明する価値があるでしょう。
 
-Both the Headers and the body of all MIME entities (including the Message
-itself) use Encoders to ensure the data they contain can be sent over the
-internet without becoming corrupted or misinterpreted.
+すべての MIME エンティティのヘッダーとボディの両方 (メッセージ自身も含む) はこれらに含まれるデータが破損するもしくは誤解されることなくインターネットを通して送信できることを保証するエンコーダーを使います。2種類の エンコーダー: Base64 と Quoted-Printable があります。
 
-There are two types of Encoder: Base64 and Quoted-Printable.
+### プラグイン
 
-### Plugins
+プラグインは Swift Mailer のふるまいを拡張もしくは修正するために存在します。これらは送信の間にトランスポートの範囲内で起動するイベントに対応します。
 
-Plugins exist to extend, or modify the behaviour of Swift Mailer. They respond
-to Events that are fired within the Transports during sending.
+Swift Mailer のベースパッケージの一部として提供されるパッケージはたくさんありこれらすべてはライブラリの範囲内で起動するイベントに対応する共通のインターフェイスにしたがいます。インターフェイスはそれぞれの種類のイベントを"リスニングし"リスニングしているイベントが起きるときに望むようにふるまいます。
 
-There are a number of Plugins provided as part of the base Swift Mailer
-package and they all follow a common interface to respond to Events fired
-within the library. Interfaces are provided to "listen" to each type of Event
-fired and to act as desired when a listened-to Event occurs.
-
-Although several plugins are provided with Swift Mailer out-of-the-box, the
-Events system has been specifically designed to make it easy for experienced
-object-oriented developers to write their own plugins in order to achieve
-goals that may not be possible with the base library.
+Swift Mailer によってそのまま使えるさまざまなプラグインが提供されているものの、イベントシステムはオブジェクト指向の経験を積んだ開発者が基本ライブラリでは実現できないかもしれないゴールを達成するために独自のプラグインを楽に書けるよう特に設計されました。
 
 [1]: http://www.php.net/archive/2007.php#2007-07-13-1 "PHP 4 end of life announcement on php.net"
