@@ -1,37 +1,28 @@
-Installing the Library
-======================
+ライブラリをインストールする
+===========================
 
-Installing Swift Mailer is trivial. Usually it's just a case of uploading the
-extracted source files to your web server.
+Swift Mailer をインストールする作業はささいなものです。通常は展開されたソースファイルを Web サーバーにアップロードするだけで済みます。
 
-Installing from a Package
--------------------------
+パッケージからインストールする
+-----------------------------
 
-Most users will download a package from the Swift Mailer website and install
-Swift Mailer using this.
+ほとんどのユーザーは Swift Mailer の公式サイトからパッケージをダウンロードして Swift Mailer をインストールします。
 
-If you downloaded Swift Mailer as a `.tar.gz` or
-`.zip` file installation is as simple as extracting the archive
-and uploading it to your web server.
+Swift Mailer を `.tar.gz` もしくは `.zip` ファイルとしてダウンロードする場合インストールはシンプルでアーカイブを展開して Web サーバーにアップロードします。
 
-### Extracting the Library
+### ライブラリを展開する
 
-You extract the archive by using your favorite unarchiving tool such as
-`tar` or 7-Zip.
+`tar` もしくは 7-Zip などの好きな展開ツールを使ってアーカイブを展開します。
 
-You will need to have access to a program that can open uncompress the
-archive. On Windows computers, 7-Zip will work. On Mac and Linux systems you
-can use `tar` on the command line.
+アーカイブを展開するプログラムにアクセスする権限が必要になります。Windows コンピューターでは、7-Zip が機能します。Mac と Linux システムではコマンドラインで `tar` を使うことができます。
 
-To extract your downloaded package:
+ダウンロードしたパッケージを展開するには:
 
- * Use the "extract" facility of your archiving software.
+ * アーカイブ管理ソフトウェアの"展開"機能を使います。
 
-The source code will be placed into a directory with the same name as the
-archive (e.g. Swift-4.0.0-b1).
+ソースコードはアーカイブと同じ名前のディレクトリに置かれます (たとえば Swift-4.0.0-b1)。
 
-The following example shows the process on Mac OS X and Linux systems using
-the `tar` command.
+次の例は`tar` コマンドを使った Mac OS X と Linux システムのプロセスを示しています。
 
     chrisbook:build chris$ ls
     Swift-4.0.0-dev.tar.gz
@@ -56,39 +47,33 @@ the `tar` command.
     CHANGES		LICENSE.GPL	LICENSE.LGPL	README		VERSION		examples	lib		test-suite	tests
     chrisbook:Swift-4.0.0-dev chris$
 
-Installing from Git
--------------------
+Git からインストールする
+-----------------------
 
-It's possible to download and install Swift Mailer directly from github.com if
-you want to keep up-to-date with ease.
+楽に最新バージョンを維持するために Swift Mailer を github.com から直接ダウンロードしてインストールすることが可能です。
 
-Swift Mailer's source code is kept in a git repository at github.com so you
-can get the source directly from the repository.
+Swift Mailer のソースコードは github.com の Git リポジトリで管理されているのでリポジトリからソールを直接得ることができます。
 
 >**NOTE**
->You do not need to have git installed to use Swift Mailer from github.  If you don't
->have git installed, go to [github][1] and click the "Download" button.
+>github から Swift Mailer を使うのに Git をインストールする必要はありません。Git をインストールしていない場合、[github][1] に移動して "Download" ボタンをクリックします。
 
-### Cloning the Repository
+### リポジトリをクローンする
 
-The repository can be cloned from git://github.com/swiftmailer/swiftmailer.git
-using the `git clone` command.
+リポジトリは `git clone` コマンドを使って git://github.com/swiftmailer/swiftmailer.git からクローンできます。 
 
-You will need to have `git` installed before you can use the
-`git clone` command.
+`git clone` コマンドを使う前に `git` コマンドをインストールする必要があります。
 
-To clone the repository:
+リポジトリをクローンするには:
 
- * Open your favorite terminal environment (command line).
+ * 好きなターミナル環境を開きます (コマンドライン)。
 
- * Move to the directory you want to clone to.
+ * クローンしたいディレクトリに移動します。
 
- * Run the command `git clone git://github.com/swiftmailer/swiftmailer.git swiftmailer`.
+ * `git clone git://github.com/swiftmailer/swiftmailer.git swiftmailer` コマンドを実行します。
 
-The source code will be downloaded into a directory called "swiftmailer".
+ソースコードは "swiftmailer" という名前のディレクトリにダウンロードされます。
 
-The example shows the process on a UNIX-like system such as Linux, BSD or Mac
-OS X.
+次の例は a Linux のような UNIX系システム、BSD もしくは Mac OS X でのプロセスを示しています。
 
     chrisbook:~ chris$ cd source_code/
     chrisbook:source_code chris$ git clone git://github.com/swiftmailer/swiftmailer.git swiftmailer
@@ -105,31 +90,23 @@ OS X.
     LICENSE.GPL	README		TODO		build.xml	examples	notes		tests
     chrisbook:swiftmailer chris$
 
-Uploading to your Host
-----------------------
+ホストサイトにアップロードする
+-----------------------------
 
-You only need to upload the "lib/" directory to your web host for production
-use. All other files and directories are support files not needed in
-production.
+必要なのは "lib/" ディレクトリを運用用途の Web ホストにアップロードすることだけです。ほかのフィルとディレクトリはユーザーのサポートのためであって運用には必要ありません。
 
-You will need FTP, rsync or similar software installed in order to upload the
-"lib/" directory to your web host.
+"lib/" ディレクトリを Web ホストにアップロードするために、FTP、rsync もしくは似たようなソフトウェアが必要になります。
 
-To upload Swift Mailer:
+Swift Mailer をアップロードするには:
 
- * Open your FTP program, or a command line if you prefer rsync/scp.
+ * FTP プログラムもしくは rsync/scp を好むのであればコマンドラインを開きます。
 
- * Upload the "lib/" directory to your hosting account.
+ * "lib/" ディレクトリをホスティングアカウントにアップロードします。
 
-The files needed to use Swift Mailer should now be accessible to PHP on your
-host.
-
-The following example shows show you can upload the files using
-`rsync` on Linux or OS X.
+これで Swift Mailer を使うのに必要なファイルはホストの PHP がアクセスできるようになります。次の例は Linux もしくは OS X で `rsync` を使ってファイルをアップロードするやり方を示しています。
 
 >**NOTE**
->You do not need to place the files inside your web root. They only need to be in a place
->where your PHP scripts can "include" them.
+>ファイルを Web 公開ディレクトリに置く必要はありません。これらは PHP スクリプトは これらを"インクルード"できる場所に存在すればいいのです。。
 
     chrisbook:Swift-4.0.0-dev chris$ rsync -rvz lib d11wtq@swiftmailer.org:swiftmailer
     building file list ... done
