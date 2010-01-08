@@ -106,7 +106,7 @@ Swift Mailer をアップロードするには:
 これで Swift Mailer を使うのに必要なファイルはホストの PHP がアクセスできるようになります。次の例は Linux もしくは OS X で `rsync` を使ってファイルをアップロードするやり方を示しています。
 
 >**NOTE**
->ファイルを Web 公開ディレクトリに置く必要はありません。これらは PHP スクリプトは これらを"インクルード"できる場所に存在すればいいのです。。
+>ファイルを Web 公開ディレクトリに置く必要はありません。これらは PHP スクリプトは これらを"インクルード"できる場所に存在すればいいのです。
 
     chrisbook:Swift-4.0.0-dev chris$ rsync -rvz lib d11wtq@swiftmailer.org:swiftmailer
     building file list ... done
