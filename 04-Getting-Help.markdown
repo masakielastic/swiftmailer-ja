@@ -1,59 +1,45 @@
-Getting Help
+助けを借りる
 ============
 
-There are a number of ways you can get help when using Swift Mailer, depending
-upon the nature of your problem. For bug reports and feature requests create a
-new ticket in Lighthouse. For general advice ask on the Google Group
-(swiftmailer), or make a post on the forum at forums.devnetwork.net.
+Swift Mailer を利用するときに問題の性質に応じて助けを借りる方法はたくさんあります。バグの報告と機能リクエストをするには Lighthouse でチケットを作ります。一般的なアドバイスを求めるには Google グループ (swiftmailer) で聞くか、もしくは forums.devnetwork.net のフォーラムで投稿します。
 
-Submitting Bugs &amp; Feature Requests
---------------------------------------
+バグ &amp; 機能のリクエストを投稿する
+------------------------------------
 
-Bugs and feature requests should be posted on Lighthouse.
+バグと機能リクエストは Lighthouse に投稿されます。
 
-If you post a bug or request a feature in the forum, or on the Google Group
-you will most likely be asked to create a ticket in [Lighthouse][1] since it is the
-simply not feasible to manage such requests from a number of a different
-sources.
+フォーラムもしくは Google グループでバグを投稿するもしくは機能をリクエストすると、たいがいは [Lighthouse][1] でチケットを作るよう言われます。これは単にたくさんの異なるソースからこのようなリクエストを管理するのにふさわしくないからです。
 
 <image href="images/docs/lighthouse.png" placement="break" />
 
-When you go to Lighthouse you will be asked to create a username and password
-before you can create a ticket. This is free and takes very little time.
+Lighthouse に移動すると、チケットを作る前にユーザー名とパスワードを作るよう求められます。このサイトは無料で登録にほんの少しの時間がかかるだけです。
 
-When you create your ticket, do not assign it to any milestones. A developer
-will assess your ticket and re-assign it as needed.
+チケットを作るとき、マイルストーンを割り当てないでください。必要に応じて開発者がチケットを査定して再割り当てをいたします。
 
-If your ticket is reporting a bug present in the current version, which was
-not present in the previous version please include the tag "regression" in
-your ticket.
+チケットが以前のバージョンに存在しなかったが現在のバージョンにあるバグを報告するのであれば、チケットに "regression" のタグを入れてくださるようお願いします。
 
-Lighthouse will update you when work is performed on your ticket.
+Lighthouse でのあなたのチケットで作業が行われたとき、あなたに通知が来ます。
 
-Ask on the Google Group
------------------------
+Google グループで質問をする
+--------------------------
 
-You can seek advice at Google Groups, within the "swiftmailer" [group][2].
+Google グループの "swiftmailer" [group][2] でアドバイスを求めることができます。
 
-You can post messages to this group if you want help, or there's something you
-wish to discuss with the developers and with other users.
+助けを借りたいときもしくは開発者とほかのユーザーと討論したいものがあるとき、このグループでメッセージを投稿できます。
 
-This is probably the fastest way to get help since it is primarily email-based
-for most users, though bug reports should not be posted here since they may
-not be resolved.
+大半のユーザーはメール中心のコミュニケーションをとるので、これは助けを借りるのにもっとも速い方法でしょう。一方でバグ報告は解決されないことがあるので、バグ報告を投稿すべきではありません。
 
-Ask on the Forum
-----------------
+フォーラムで質問をする
+---------------------
 
-You can create a thread in the web forum at forums.devnetwork.net.
+forums.devnetwork.net の Web フォーラムでスレッドを作ることができます。
 
-Swift Mailer has it's own [board][3] on the Developer's Network.
+Swift Mailer の開発者ネットワークに独自の [掲示板][3] があります。
 
-If you post messages here they will be read by the developers and by other
+ここにメッセージを投稿すれば開発者もしくはフォーラムのメンバーが読んでくれます。
 members of the forum.
 
-This forum is a PHP forum, so you may post in the other boards within the
-forum if you need more general help with PHP itself.
+このフォーラムは PHP を扱っているので、PHP 自身についてより一般的な助けを借りる必要があれば、フォーラムのなかの他の板に投稿することができます。
 
 [1]: http://swiftmailer.lighthouseapp.com/
 [2]: http://groups.google.com/group/swiftmailer
