@@ -1,23 +1,18 @@
-Including Swift Mailer (Autoloading)
-====================================
+Swift Mailer をインクルードする (オートロード)
+================================================
 
-Swift Mailer uses an auto-loader so the only file you need to include is the
-`lib/swift_required.php` file.
+Swift Mailer はオートローダーを備えているので、インクルードする必要のあるファイルは `lib/swift_required.php` ファイルだけです。
 
-To use Swift Mailer's autoloader:
+Swift Mailer のオートローダーを使うには:
 
- *  Put Swift Mailer somewhere accessible to your PHP scripts (this does not need to be in the web root).
+ *  Swift Mailer を PHP スクリプトにアクセスできるところに置きます (Web ルートである必要はありません)。
 
- *  Include, or require the `lib/swift_required.php` file.
+ *  `lib/swift_required.php` ファイルを include もしくは require します。
 
- *  Follow the remainder of the documentation for using the available components.
+ *  利用可能なコンポーネントを使うには残りのドキュメントにしたがってください。
 
 >**NOTE**
->While Swift Mailer's autoloader is designed to play nicely with other autoloaders,
->sometimes you may have a need to avoid using Swift Mailer's autoloader and use your own
->instead.  Include the `swift_init.php` instead of the `swift_required.php`
->if you need to do this.  The very minimum include is the `swift_init.php` file since
->Swift Mailer will not work without the dependency injection this file sets up.
+>Swift Mailer のオートローダーはほかのオートローダーと連携するように設計されていますが、独自のオートローダーを使うために Swift Mailer のオートローダーを避ける必要があります。これを行う必要がある場合、`swift_required.php` の代わりに `swift_init.php` をインクルードします。Swift Mailer はこのファイルがセットアップする Dependency Injection なしで動かないので最小のインクルードは `swift_init.php` ファイルです。
 
     [php]
     <?php
