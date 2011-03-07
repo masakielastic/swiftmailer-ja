@@ -1,52 +1,41 @@
-Sending Messages
-================
+メッセージを送信する
+=====================
 
-Quick Reference for Sending a Message
+メッセージ送信のクィックリファレンス
 -------------------------------------
 
-Sending a message is very straightforward. You create a Transport, use it to
-create the Mailer, then you use the Mailer to send the message.
+メッセージの送信方法は単刀直入です。Transport を作り、Mailer を作るために Transport を使い、メッセージを送るために Mailer を使います。
 
-To send a Message:
+メッセージを送信するには:
 
- * Create a Transport from one of the provided Transports &#8211;
-   `Swift_SmtpTransport`,
-   `Swift_SendmailTransport`,
-   `Swift_MailTransport` or one of the aggregate Transports.
+ * 提供された Transports の 1つから Transport を作ります &#8211;
+   `Swift_SmtpTransport`、
+   `Swift_SendmailTransport`、
+   `Swift_MailTransport` もしくはアグリゲート Transports の1つ。
 
- * Create an instance of the `Swift_Mailer` class, using the
-   Transport as it's constructor parameter.
+ * コンストラクタパラメータとして Transport を使い `Swift_Mailer` クラスのインスタンスを作ります。
 
- * Create a Message.
+ * メッセージを作成します。
 
- * Send the message via the `send()` or the
-   `batchSend()` methods on the Mailer object.
+ * Mailer オブジェクトの `send()` もしくは
+   `batchSend()` メソッドを通じてメッセージを送ります。
 
-When using `send()` the message will be sent just like it would
-be sent if you used your mail client. An integer is returned which includes
-the number of successful recipients. If none of the recipients could be sent
-to then zero will be returned, which equates to a boolean
-`false`. If you set two `To:` recipients and
-three `Bcc:` recipients in the message and all of the
-recipients are delivered to successfully then the value 5 will be returned.
+`send()` メソッドを使うと、メッセージはメールクライアントを使ったように送られます。連続した数の受信者を含む整数が返されます。受信者が送信できなければ、ブール値の `false` と同等であるゼロが返されます。メッセージのなかで2つの `To:` 受信者と3人の `Bcc:` 受信者とすべての受信者のデリバリは成功し、5の値が返されます。
 
-`batchSend()` returns a number just like
-`send()`, except that it does not include all of the
-`To:` recipients in the Headers. Each recipient is sent a
-unique copy of the message with only their address in the headers. This is
-advised for newsletter systems.
+`batchSend()` メソッドは a number just like `send()`, except that it does not include all of the
+`To:` 受信者のすべてを含みません。それぞれの受信者は is sent a unique copy of the message with only their address in the headers。これは This is advised for newsletter systems.
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //トランスポートを作成します
     $transport = Swift_SmtpTransport::newInstance('smtp.example.org', 25)
       ->setUsername('your username')
       ->setPassword('your password')
       ;
 
     /*
-    You could alternatively use a different transport such as Sendmail or Mail:
+    代わりに Sendmail もしくは Mail などの異なるトランスポートを使うことができます:
 
     //Sendmail
     $transport = Swift_SendmailTransport::newInstance('/usr/sbin/sendmail -bs');
@@ -55,98 +44,72 @@ advised for newsletter systems.
     $transport = Swift_MailTransport::newInstance();
     */
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っていた Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-    //Create a message
+    //メッセージを作成します
     $message = Swift_Message::newInstance('Wonderful Subject')
       ->setFrom(array('john@doe.com' => 'John Doe'))
       ->setTo(array('receiver@domain.org', 'other@domain.org' => 'A name'))
       ->setBody('Here is the message itself')
       ;
   
-    //Send the message
+    //メッセージを送信します
     $result = $mailer->send($message);
 
     /*
-    You can alternatively use batchSend() to send the message
+    メッセージを送るのに `batchSend()` メソッドを使うことができます。
 
     $result = $mailer->batchSend($message);
     */
 
-### Transport Types
+### トランスポートの種類
 
-A Transport is the component which actually does the sending. You need to
-provide a Transport object to the Mailer class and there are several possible
-options.
+Transport は送信を実際に担当するコンポーネントです。Mailer オブジェクトに Transport オブジェクトを提供する必要があります。利用可能な選択肢がいくつかあります。
 
-Typically you will not need to know how a Transport works under-the-surface,
-you will only need to know how to create an instance of one, and which one to
-use for your environment.
+通常は水面下で Transport がどのように動くのか知る必要はありません。知っておけばよいのは
+インスタンスの作り方と環境に対してどれを使うのかです。
 
-#### The SMTP Transport
+#### SMTP トランスポート
 
-The SMTP Transport sends messages over the (standardized) Simple Message Transfer
-Protocol.  It can deal with encryption and authentication.
+SMTP Transport は (標準化された) Simple Message Transfer
+Protocol を通じてメッセージを送ります。これは暗号化と認証を扱います。
 
-The SMTP Transport, `Swift_SmtpTransport` is without doubt the most commonly
-used Transport because it will work on 99% of web servers (I just made that
-number up, but you get the idea). All the server needs is the ability to
-connect to a remote (or even local) SMTP server on the correct port number
-(usually 25).
+SMTP Transport、`Swift_SmtpTransport` はうたがないなくもっともよく使われる Transport です。99% の Web サーバーで動くからです (数字をそろえましたが、おわかりいただけることでしょう)。サーバーに必要なことは正しいポート番号 (通常は25)でリモート (もしくはローカルの) SMTP サーバーに接続する機能です。
 
-SMTP servers often require users to authenticate with a username and password
-before any mail can be sent to other domains. This is easily achieved using
-Swift Mailer with the SMTP Transport.
+メールがほかのドメインに送られる前に SMTP サーバーはしばしユーザー名とパスワードで認証するためのユーザーを必要とします。これは Swift Mailer の SMTP Transport を使うことで用意に実現できます。 
 
-SMTP is a protocol &#8211; in other words it's a "way" of communicating a job
-to be done (i.e. sending a message). The SMTP protocol is the fundamental
-basis on which messages are delivered all over the internet 7 days a week, 365
-days a year. For this reason it's the most "direct" method of sending messages
-you can use and it's the one that will give you the most power and feedback
-(such as delivery failures) when using Swift Mailer.
+SMTP はプロトコルです &#8211; 言い換えると行われるジョブをコミュニケーションする (すなわちメッセージを送る)「方法」です。SMTP プロトコルはインターネットでメッセージを配信するための基本原理です。このためメッセージを送るためのもっとも「直接的な」メソッドで Swift Mailer を使うときに最強の力とフィードバック (デリバリの失敗)をもたらしてくれます。
 
-Because SMTP is generally run as a remote service (i.e. you connect to it over
-the network/internet) it's extremely portable from server-to-server. You can
-easily store the SMTP server address and port number in a configuration file
-within your application and adjust the settings accordingly if the code is
-moved or if the SMTP server is changed.
+一般的に SMTP はリモートサービスとして動くので (すなわちネットワーク/インターネットを通じてコネクトします) サーバーからサーバーに対してきわめてポータブルです。SMTP サーバーのアドレスとポート番号をアプリケーションの設定ファイルに保存し SMTP サーバーの変更に応じて設定を調整します。
 
-Some SMTP servers &#8211; Google for example &#8211; use encryption for
-security reasons. Swift Mailer supports using both SSL and TLS encryption
-settings.
+SMTP サーバーのなかには &#8211; たとえば Google のように &#8211; セキュリティの理由から暗号化を使います。Swift Mailer は SSL と TLS の暗号化設定を両方ともサポートします。
 
-##### Using the SMTP Transport
+##### SMTP トランスポートを使う
 
-The SMTP Transport is easy to use. Most configuration options can be set with
-the constructor.
+SMTP Transport はかんたんに使うことができます。大半のコンフィギュレーションのオプションはコンストラクタでセットします。
 
-To use the SMTP Transport you need to know which SMTP server your code needs
-to connect to. Ask your web host if you're not sure. Lots of people ask me who
-to connect to &#8211; I really can't answer that since it's a setting that's
-extremely specific to your hosting environment.
+SMTP Transport を使うにはプログラムコードがどの SMTP サーバーに接続するのかを知っていることが必要です。わからなければ自分が利用しているウェブサイトのホストに聞いてください。多くの人が誰にコネクトすればよいのか Swift Mailer の開発者にたずねてきますが &#8211; Iホスト環境に特有の設定なので、開発者は答えようがありません。
 
-To use the SMTP Transport:
+SMTP Transport を使うには:
 
- * Call `Swift_SmtpTransport::newInstance()` with the SMTP
-   server name and optionally with a port number (defaults to 25).
+ * サーバーの名前とオプションのポート番号 (デフォルトは 25) `Swift_SmtpTransport::newInstance()` を呼び出します。
 
- * Use the returned object to create the Mailer.
+ * Mailer を作るために戻り値を使います。
 
-A connection to the SMTP server will be established upon the first call to
-`send()` or `batchSend()`.
+SMTP サーバーへのコネクションは `send()` もしくは `batchSend()` メソッドを最初に呼び出すと確立されます。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_SmtpTransport::newInstance('smtp.example.org', 25);
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
     /*
-    It's also possible to use multiple method calls
+    複数のメソッド呼び出しを使うこともできます
 
     $transport = Swift_SmtpTransport::newInstance()
       ->setHost('smtp.example.org')
@@ -154,39 +117,32 @@ A connection to the SMTP server will be established upon the first call to
       ;
     */
 
-##### Encrypted SMTP
+##### 暗号化された SMTP
 
-You can use SSL or TLS encryption with the SMTP Transport by specifying it as
-a parameter or with a method call.
+SMTP Transport をパラメータとして指定するもしくはメソッドを呼び出すことで SSL もしくは TLS 暗号化を使うことができます。
 
-To use encryption with the SMTP Transport:
+SMTP Transport で暗号化を使うには:
 
- * Pass the encryption setting as a third parameter to
-   `Swift_SmtpTransport::newInstance()`; or
+ * `Swift_SmtpTransport::newInstance()` に第3パラメータとして暗号化設定を渡すもしくは
 
- * Call the `setEncryption()` method on the Transport.
+ * Transport の `setEncryption()` メソッドを呼び出します。
 
-A connection to the SMTP server will be established upon the first call to
-`send()` or `batchSend()`. The connection will
-be initiated with the correct encryption settings.
+SMTP サーバーへのコネクションは `send()` もしくは `batchSend()` メソッドの最初の呼び出しで確立されます。コネクションは正しい暗号化設定で初期化されます。
 
 >**NOTE**
->For SSL or TLS encryption to work your PHP installation must have appropriate
->OpenSSL transports wrappers. You can check if "tls" and/or "ssl" are present
->in your PHP installation by using the PHP function
->`stream_get_transports()`
+>SSL もしくは TLS 暗号化を機能させるには OpenSSL Transports ラッパーを PHP にインストールしなければなりません。PHP の `stream_get_transports()` 関数を使うことでtls」かつ/もしくは「ssl」が PHP にインストールされているかチェックできます。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_SmtpTransport::newInstance('smtp.example.org', 587, 'ssl');
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使い  Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
     /*
-    It's also possible to use multiple method calls
+    メソッドチェーンを使うこともできます
 
     $transport = Swift_SmtpTransport::newInstance()
       ->setHost('smtp.example.org')
@@ -195,275 +151,192 @@ be initiated with the correct encryption settings.
       ;
     */
 
-##### SMTP with a Username and Password
+##### SMTP とユーザー名とパスワード
 
-Some servers require authentication. You can provide a username and password
-with `setUsername()` and `setPassword()`.
+サーバーのなかには認証を必須とするものがあります。`setUsername()` と `setPassword()` メソッドでユーザー名とパスワードを提供することができます。
 
-To use a username and password with the SMTP Transport:
+SMTP Transport でユーザー名とパスワードを使うには:
 
- * Create the Transport with
-   `Swift_SmtpTransport::newInstance()`.
+ * `Swift_SmtpTransport::newInstance()` で Transport を作ります
 
- * Call the `setUsername()` and `setPassword()`
-   methods on the Transport.
+ * Transport の `setUsername()` と `setPassword()` メソッドを呼び出します。
 
-Your username and password will be used to authenticate upon first connect
-when `send()` or `batchSend()` are first used on
-the Mailer.
+Mailer で `send()` もしくは `batchSend()` メソッドが最初に使われるとき、ユーザー名とパスワードは最初のコネクションで認証するために使われます。
 
-If authentication fails, an Exception of type
-`Swift_Transport_TransportException` will be thrown.
+認証が失敗すると `Swift_Transport_TransportException` が投げられます。
 
 >**NOTE**
->If you need to know early whether or not authentication has failed and an
->Exception is going to be thrown, call the `start()` method on
->the created Transport.
+>認証が失敗し Exception が投げられたことを速く理解する必要があれば、作られた Transport の `start()` メソッドを呼び出します。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport the call setUsername() and setPassword()
+    //Transport を作り setUsername() と setPassword() を呼び出します。
     $transport = Swift_SmtpTransport::newInstance('smtp.example.org', 25)
       ->setUsername('username')
       ->setPassword('password')
       ;
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-#### The Sendmail Transport
+#### Sendmail トランスポート
 
-The Sendmail Transport sends messages by communicating with a locally
-installed MTA &#8211; such as `sendmail`.
+Sendmail Transport は`sendmail` などのローカルにインストールした MTA &#8211; とコミュニケーションをとることでメッセージを送ります。
 
-The Sendmail Transport, `Swift_SendmailTransport` does not
-directly connect to any remote services. It is designed for Linux servers that
-have `sendmail` installed. The Transport starts a local
-`sendmail` process and sends messages to it. Usually the
-`sendmail` process will respond quickly as it spools your
-messages to disk before sending them.
+Sendmail Transport、`Swift_SendmailTransport` はリモートサービスに直接接続しません。`sendmail` がインストールされている Linux サーバーを前提に設計されています。Transport はローカルな
+`sendmail` プロセスを開始し、メッセージをそれに送ります。通常 `sendmail` プロセスはすばやく反応し、メッセージを送る前にディスクにスプールします。
 
-The Transport is named the Sendmail Transport for historical reasons
-(`sendmail` was the "standard" UNIX tool for sending e-mail
-for years). It will send messages using other transfer agents such as Exim or
-Postfix despite its name, provided they have the relevant sendmail wrappers so
-that they can be started with the correct command-line flags.
+Transport は歴史的な理由から Sendmail Transport から名づけられました (`sendmail` は長いあいだ「標準的な」メール送信のための UNIX ツールでした)。これは名前にもかかわらず、これは sendmail に関連するラッパーである Exim や Postfix などのほかのメール転送エージェントを使って正しいコマンドラインのフラグではじめられるように、メッセージを送信します。
 
-It's a common misconception that because the Sendmail Transport returns a
-result very quickly it must therefore deliver messages to recipients quickly
-&#8211; this is not true. It's not slow by any means, but it's certainly not
-faster than SMTP when it comes to getting messages to the intended recipients.
-This is because sendmail itself sends the messages over SMTP once they have
-been quickly spooled to disk.
+Sendmail Transport はとても素早く結果を返すので、これは受信者に素早くメッセージを配信しなければならないという共通の誤解がありますが、&#8211; これは事実ではありません。これが遅いということはけっしてありませんが、想定された受信者がメッセージを得ることに関しては SMTP よりも速くというわけではありません。sendmail 自身が SMTP を通じてメッセージを送るので、メッセージはディスクに素早くスプールされるからです。
 
-The Sendmail Transport has the potential to be just as smart of the SMTP
-Transport when it comes to notifying Swift Mailer about which recipients were
-rejected, but in reality the majority of locally installed
-`sendmail` instances are not configured well enough to
-provide any useful feedback. As such Swift Mailer may report successful
-deliveries where they did in fact fail before they even left your server.
+受信者が拒否されたことを Swift Mailer に通知することに関して、Sendmail Transport は SMPT と同じぐらいスマートであるポテンシャルをもっていますが、ローカルにインストールされた `sendmail` インスタンスのマジョリティにおいて、有益なフィードバックを提供するようにコンフィギュレーションはじゅうぶんに調整されていません。そういうわけなので、Swift Mailer は実際には配布物をサーバーに残す前に実際には失敗しているのにもかかわらず、デリバリの成功を報告するかもしれません。
 
-You can run the Sendmail Transport in two different modes specified by command
-line flags:
+コマンドラインフラグで指定した異なる2つのモードで Sendmail Transport を実行することができます:
 
-  * "`-bs`" runs in SMTP mode so theoretically it will act
-    like the SMTP Transport
+  * "`-bs`" は SMTP モードで動きます。理論的には SMTP Transport のようにふるまいます。
 
-  * "`-t`" runs in piped mode with no feedback, but
-    theoretically faster, though not advised
+  * "`-t`" はフィードバックなしの piped モードで動きます。理論的には速くなりますが、おすすめではありません。
 
-You can think of the Sendmail Transport as a sort of asynchronous SMTP
-Transport &#8211; though if you have problems with delivery failures you
-should try using the SMTP Transport instead. Swift Mailer isn't doing the work
-here, it's simply passing the work to somebody else (i.e.
-`sendmail`).
+デリバリの失敗に問題がある場合、Sendmail Transport を一種の非同期 SMTP
+Transport &#8211; と考えることができます。代わりに SMTP Transport を試すべきです。Swift Mailer はここでは何もしませんが、仕事をほかの誰か (すなわち
+`sendmail`) にゆだねます。
 
-##### Using the Sendmail Transport
+##### Sendmail トランスポートを使う
 
-To use the Sendmail Transport you simply need to call
-`Swift_SendmailTransport::newInstance()` with the command as a
-parameter.
+Sendmail トランスポートを使うにはコマンドをパラメータとして
+`Swift_SendmailTransport::newInstance()` を呼び出す必要があります。
 
-To use the Sendmail Transport you need to know where
-`sendmail` or another MTA exists on the server. Swift Mailer
-uses a default value of `/usr/sbin/sendmail`, which should
-work on most systems.
+Sendmail Transport を使うには `sendmail` もしくは別の MTA が存在する場所を知る必要があります。Swift Mailer
+は大半のシステムで機能する `/usr/sbin/sendmail` のデフォルト値を使います。
 
-You specify the entire command as a parameter (i.e. including the command line
-flags). Swift Mailer supports operational modes of "`-bs`"
-(default) and "`-t`".
+コマンド全体をパラメータとして指定します (すなわち、コマンドラインフラグを含む)。Swift Mailer は「`-bs`」
+(デフォルト) と「`-t`」のオペレーションモードをサポートします。
 
 >**NOTE**
->If you run sendmail in "`-t`" mode you will get no feedback
->as to whether or not sending has succeeded. Use "`-bs`"
->unless you have a reason not to.
+>「`-t`」モードの sendmail を実行すると送信の正否にかかわらず、フィードバックは得られません。理由がないかぎり「`-bs`」を使います。
 
-To use the Sendmail Transport:
+Sendmail Transport を使うには:
 
- * Call `Swift_SendmailTransport::newInstance()` with the
-   command, including the correct command line flags. The default is to use
-   `/usr/sbin/sendmail -bs` if this is not specified.
+ * 正しいコマンドラインフラグを含めて、コマンドで `Swift_SendmailTransport::newInstance()` を呼び出します。指定されていなければ、デフォルトの `/usr/sbin/sendmail -bs` が使われます。
 
- * Use the returned object to create the Mailer.
+ * Mailer を作るには返されたオブジェクトを使います。
 
-A sendmail process will be started upon the first call to
-`send()` or `batchSend()`. If the process cannot
-be started successfully an Exception of type
-`Swift_Transport_TransportException` will be thrown.
+sendmail のプロセスは `send()` もしくは `batchSend()` への最初の呼び出しではじまります。プロセスのスタートが失敗すれば `Swift_Transport_TransportException` が投げられます。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_SendmailTransport::newInstance('/usr/sbin/exim -bs');
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-#### The Mail Transport
+#### Mail トランスポート
 
-The Mail Transport sends messages by delegating to PHP's internal
-`mail()` function.
+Mail Transport は PHP 内部の `mail()` 関数にデリゲートすることでメッセージを送ります。
 
-In my experience &#8211; and others' &#8211; the `mail()`
-function is not particularly predictable, or helpful.
+筆者や &#8211; ほかのひとの経験によれば &#8211;  `mail()` 関数はとりわけ予想可能でも助けになるわけでもありません。
 
-Quite notably, the `mail()` function behaves entirely
-differently between Linux and Windows servers. On linux it uses
-`sendmail`, but on Windows it uses SMTP.
+とてもよく知られていることは、`mail()` 関数のふるまいは Linux と Windows サーバーのあいだで完全に異なります。Linux では `sendmail` が使われますが、Windows では SMTP を使います。
 
-In order for the `mail()` function to even work at all
-`php.ini` needs to be configured correctly, specifying the
-location of sendmail or of an SMTP server.
+`mail()` 関数をきちんと機能させるには、`sendmail` もしくは `SMTP` サーバーの位置を指定することで、`php.ini` ファイルのコンフィギュレーションを正しく修正する必要があります。
 
-The problem with `mail()` is that it "tries" to simplify things
-to the point that it actually makes things more complex due to poor interface
-design. The developers of Swift Mailer have gone to a lot of effort to make
-the Mail Transport work with a reasonable degree of consistency.
+`mail()` の問題はものごとをシンプルに「しよう」としてかえって複雑にしてしまうことです。貧弱なインターフェイスのデザインが原因です。Swift Mailer の開発者は Mail Transport がほどよい程度の一貫性をもって動くように相当な努力をしてきました。
 
-Serious drawbacks when using this Transport are:
+この Transport を使う場合の重大な欠点は:
 
-  * Unpredictable message headers
+  * 予測できないメッセージヘッダー
 
-  * Lack of feedback regarding delivery failures
+  * デリバリの失敗に関するフィードバックの欠如
 
-  * Lack of support for several plugins that require real-time delivery
-    feedback
+  * リアルタムデリバリフィードバックを必須とするいくつかのプラグインの欠如
 
-It's a last resort, and we say that with a passion!
+最後の手段ですが、私たち開発者は情熱をもってこれを言います！
 
-##### Using the Mail Transport
+##### Mail トランスポートを使う
 
-To use the Mail Transport you simply need to call
-`Swift_MailTransport::newInstance()`. It's unlikely you'll need
-to configure the Transport.
+Mail Transport を使うには、`Swift_MailTransport::newInstance()` を呼び出す必要があります。Transport のコンフィギュレーションを修正する必要はないでしょう。
 
-To use the Mail Transport:
+Mail Transport を使うには:
 
- * Call `Swift_MailTransport::newInstance()`.
+ * `Swift_MailTransport::newInstance()` を呼び出します
 
- * Use the returned object to create the Mailer.
+ * Mailer を作るために返されたオブジェクトを使います
 
-Messages will be sent using the `mail()` function.
+Message の送信には `mail()` 関数が使われます。
 
 >**NOTE**
->The `mail()` function can take a
->`$additional_parameters` parameter. Swift Mailer sets this to
->"`-f%s`" by default, where the "%s" is substituted with the
->address of the sender (via a `sprintf()`) at send time. You may
->override this default by passing an argument to
->`newInstance()`.
+>`mail()` 関数は `$additional_parameters` パラメータをとります。デフォルトでは Swift Mailer はこのパラメータに「`-f%s`」をセットします。「%s」は (`sprintf()` 関数を通じて) 送信時に送り主のアドレスに置き換わります。`newInstance()` に引数を渡すことでこのデフォルトをオーバーライドすることができます。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_MailTransport::newInstance();
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使い Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-### Available Methods for Sending Messages
+### メッセージ送信に利用できるメソッド
 
-The Mailer class offers two methods for sending Messages &#8211;
-`send()` and `batchSend()`. Each behaves in a
-slightly different way.
+Mailer クラスはメッセージオブジェクトを送るために２つのメソッドを提供します &#8211;
+`send()` と `batchSend()`。それぞれのメソッドのふるまいは微妙に異なります。
 
-When a message is sent in Swift Mailer, the Mailer class communicates with
-whichever Transport class you have chosen to use.
+Swift Mailer でメッセージが送られるとき、Mailer クラスは選んだ Transport クラスとコミュニケーションをとります。
 
-Each recipient in the message should either be accepted or rejected by the
-Transport. For example, if the domain name on the email address is not
-reachable the SMTP Transport may reject the address because it cannot process
-it. Whichever method you use &#8211; `send()` or
-`batchSend()` &#8211; Swift Mailer will return an integer
-indicating the number of accepted recipients.
+メッセージのそれぞれの受信者は Transport によって受け入れられるもしくは拒否されます。たとえば、メールアドレスのドメイン名に到達できなければ、アドレスが処理できないので SMTP Transport はアドレスを拒否することがあります。&#8211; `send()` もしくは `batchSend()` &#8211; のどちらを使うのであっても、Swift Mailer は受け入れられた受信者の数を示す整数を返します。
 
 >**NOTE**
->It's possible to find out which recipients were rejected &#8211; we'll cover
->that later in this chapter.
+>拒否された受信者を見つけることは可能です &#8211; この章の後の方でこの内容をカバーします。
 
-#### Using the `send()` Method
+#### `send()` メソッドを使う
 
-The `send()` method of the `Swift_Mailer` class
-sends a message using exactly the same logic as your Desktop mail client would
-use. Just pass it a Messgae and get a result.
+`Swift_Mailer` クラスの `send()` メソッドはデスクトップのメールクライアントとまったく同じロジックを使ってメッセージを送ります。Message にこれを渡し結果を得ます。
 
-To send a Message with `send()`:
+`send()` メソッドで Message を送るには:
 
- * Create a Transport from one of the provided Transports &#8211;
-   `Swift_SmtpTransport`,
-   `Swift_SendmailTransport`,
-   `Swift_MailTransport` or one of the aggregate Transports.
+ * 組み込みの Transport クラスの1つから Transport のインスタンスを作ります &#8211;
+   `Swift_SmtpTransport`、
+   `Swift_SendmailTransport`、
+   `Swift_MailTransport` もしくはアグリゲート Transport の1つ
 
- * Create an instance of the `Swift_Mailer` class, using the
-   Transport as it's constructor parameter.
+ * Transport をコンストラクタパラメータとして使うことで `Swift_Mailer` クラスのインスタンスを作ります。
 
- * Create a Message.
+ * Message を作ります。
 
- * Send the message via the `send()` method on the Mailer
-   object.
+ * オブジェクトの `send()` メソッドを通じてメッセージを送ります。
 
-The message will be sent just like it would be sent if you used your mail
-client. An integer is returned which includes the number of successful
-recipients. If none of the recipients could be sent to then zero will be
-returned, which equates to a boolean `false`. If you set two
-`To:` recipients and three `Bcc:` recipients in
-the message and all of the recipients are delivered to successfully then the
-value 5 will be returned.
+メールクライアントを使ったようにメッセージは送られます。返される整数は成功した受信者の数を含む整数が返されます。メッセージが送られた受信者がいなければブール値の `false` と同等のゼロが返されます。メッセージのなかの2人の `To:` 受信者と3人の `Bcc:` 受信者をセットすると すべての受信者のデリバリに成功すれば5の値が返されます。
 
 >**NOTE**
->In the following example, one is email is sent to both
->`receiver@domain.org` and `other@domain.org`.
->Both addresses will be visible in the `To:` header. If you
->don't want `receiver@domain.org` and
->`other@domain.org` to know about each other you should use
->`batchSend()` instead.
+>つぎの例において、1つのメールは `receiver@domain.org` と `other@domain.org` の両方に送られます。両方のアドレスとも `To:` ヘッダーのなかで見えます。`receiver@domain.org` と `other@domain.org` のひとたちがお互いを知られないようにしたいのであれば `batchSend()` メソッドを代わりに使います。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_SmtpTransport::newInstance('localhost', 25);
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使い Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-    //Create a message
+    //メッセージを作ります
     $message = Swift_Message::newInstance('Wonderful Subject')
       ->setFrom(array('john@doe.com' => 'John Doe'))
       ->setTo(array('receiver@domain.org', 'other@domain.org' => 'A name'))
       ->setBody('Here is the message itself')
       ;
   
-    //Send the message
+    //メッセージを送ります
     $numSent = $mailer->send($message);
 
     printf("Sent %d messages\n", $numSent);
 
     /* Note that often that only the boolean equivalent of the
-       return value is of concern (zero indicates FALSE)
+       return value is of concern (ゼロは FALSE を示します)
    
     if ($mailer->send($message))
     {
@@ -476,64 +349,52 @@ value 5 will be returned.
 
     */
 
-#### Using the `batchSend()` Method
+#### `batchSend()` メソッドを使う
 
-The `batchSend()` method of the `Swift_Mailer`
-class sends a separate message to each recipient in the `To:`
-field. Each recipient receives a message containing only their own address in
-the `To:` field.
+`Swift_Mailer`
+クラスの `batchSend()` メソッドは個別のメッセージを `To:` フィールドのなかのそれぞれの受信者に送ります。それぞれの受信者は `To:` フィールドのなかの独自のアドレスだけを含むメッセージを受けつけます。
 
-To send a Message with `batchSend()`:
+`batchSend()` メソッドで Message を送るには:
 
- * Create a Transport from one of the provided Transports &#8211;
-   `Swift_SmtpTransport`,
-   `Swift_SendmailTransport`,
-   `Swift_MailTransport` or one of the aggregate Transports.
+ * 組み込みの Transport クラスの1つから Transport を作ります &#8211;
+   `Swift_SmtpTransport`、
+   `Swift_SendmailTransport`、
+   `Swift_MailTransport` もしくはアグリゲート Transport の1つ
 
- * Create an instance of the `Swift_Mailer` class, using the
-   Transport as it's constructor parameter.
+ * Transport をコンストラクタパラメータとして使い `Swift_Mailer` クラスのインスタンスを作ります。
 
- * Create a Message.
+ * Message を作ります。
 
- * Send the message via the `batchSend()` method on the Mailer
-   object.
+ * Mailer オブジェクトの `batchSend()` メソッドを通じてメッセージを送ります。
 
-Each recipient of the messages receives a different copy with only their own email address
-on the `To:` field.  An integer is returned which includes the
-number of successful recipients.  If none of the recipients could be sent to then
-zero will be returned, which equates to a boolean `false`.  If you
-set two `To:` recipients and three `Bcc:` recipients in
-the message and all of the recipients are delivered to successfully then the value
-5 will be returned.
+メッセージのそれぞれの受信者は `To:` フィールドの自分自身のメールアドレスだけがついてくる異なるコピーを受けとります。成功した受信者の人数と同じ整数が返されます。受信者に送信されなければブール値の `false` と同等のゼロが返されます。メッセージのなかの2人の `To:` 受信者と3人の `Bcc:` 受信者とすべての受信者のデリバリが成功すれば5の値が返されます。
 
 >**NOTE**
->In the following example, two emails are sent. One to each of
->`receiver@domain.org` and `other@domain.org`.
->These recipients will not be aware of each other.
+>次の例では、2つのメールが送信されます。`receiver@domain.org` と `other@domain.org` のそれぞれに1回ずつです。これらの受信者がお互いを知ることはありません。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Transport
+    //Transport を作ります
     $transport = Swift_SmtpTransport::newInstance('localhost', 25);
 
-    //Create the Mailer using your created Transport
+    //あらかじめ作っておいた Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance($transport);
 
-    //Create a message
+    //メッセージを作ります
     $message = Swift_Message::newInstance('Wonderful Subject')
       ->setFrom(array('john@doe.com' => 'John Doe'))
       ->setTo(array('receiver@domain.org', 'other@domain.org' => 'A name'))
       ->setBody('Here is the message itself')
       ;
 
-    //Send the message
+    //メッセージを送ります
     $numSent = $mailer->batchSend($message);
 
     printf("Sent %d messages\n", $numSent);
 
     /* Note that often that only the boolean equivalent of the
-       return value is of concern (zero indicates FALSE)
+       return value is of concern (ゼロは FALSE を示します)
 
     if ($mailer->batchSend($message))
     {
@@ -546,38 +407,29 @@ the message and all of the recipients are delivered to successfully then the val
 
     */
 
-### Finding out Rejected Addresses
+### 拒否されたアドレスを見つける
 
-It's possible to get a list of addresses that were rejected by the Transport
-by using a by-reference parameter to `send()` or
-`batchSend()`.
+`send()` もしくは
+`batchSend()` メソッドへの参照によるパラメータを使うことで、Transport によって拒否されたアドレスのリストを得ることは可能です。
 
-As Swift Mailer attempts to send the message to each address given to it, if a
-recipient is rejected it will be added to the array. You can pass an existing
-array, otherwise one will be created by-reference.
+Swift Mailer はそれぞれのアドレスにメッセージを送ることを試みますが、受信者が拒否されれば、配列に追加されます。既存の配列を渡すことが可能で、さもなければ配列が参照によって作られます。
 
-Collecting the list of recipients that were rejected can be useful in
-circumstances where you need to "prune" a mailing list for example when some
-addresses cannot be delivered to.
+拒否された受信者のリストを集めることはたとえばデリバリがうまくゆかないときに「prune」なメーリングリストが必要な状況などに役立ちます。 
 
-#### Getting Failures By-reference
+#### 参照で失敗を取得する
 
-Collecting delivery failures by-reference with the `send()` or
-`batchSend()` methods is as simple as passing a variable name
-to the method call.
+`send()` もしくは
+`batchSend()` メソッドで参照によるデリバリの失敗を集める方法はシンプルで、メソッド呼び出しに変数の名前を渡すだけです。
 
-To get failed recipients by-reference:
+参照で送信できなかった受信者を得るには:
 
- * Pass a by-reference variable name to the `send()` or
-   `batchSend()` methods of the Mailer class.
+ * Mailer クラスの `send()` もしくは
+   `batchSend()` メソッドに変数の名前を参照で渡しします。
 
-If the Transport rejects any of the recipients, the culprit addresses will be
-added to the array provided by-reference.
+Transport が受信者の誰かを拒否する場合、犯人のアドレスが参照渡しで提供された配列に犯人のアドレスが追加されます。
 
 >**NOTE**
->If the variable name does not yet exist, it will be initialized as an empty
->array and then failures will be added to that array. If the variable already
->exists it will be type-cast to an array and failures will be added to it.
+>変数の名前がまだ存在していなければ、これは空の配列として初期化され、その配列に失敗の情報が追加されます。変数がすでに存在していれば、配列にタイプキャスティングされ、それに失敗の情報が追加されます。
 
     [php]
     $mailer = Swift_Mailer::newInstance( ... );
@@ -592,7 +444,7 @@ added to the array provided by-reference.
       ->setBody( ... )
       ;
   
-    //Pass a variable name to the send() method
+    //send() メソッドに変数の名前を渡します
     if (!$mailer->send($message, $failures))
     {
       echo "Failures:";

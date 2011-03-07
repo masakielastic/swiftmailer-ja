@@ -1,52 +1,36 @@
-Message Headers
-===============
+メッセージのヘッダー
+=====================
 
-Sometimes you'll want to add your own headers to a message or modify/remove
-headers that are already present. You work with the message's HeaderSet to do
-this.
+メッセージに独自のヘッダーを追加したいもしくはヘッダーを修正/削除したいことがあります。これを実現するにはメッセージの HeaderSet を取り組みます。
 
-Header Basics
--------------
+ヘッダーの基本
+--------------
 
-All MIME entities in Swift Mailer &#8211; including the message itself &#8211;
-store their headers in a single object called a HeaderSet. This HeaderSet is
-retrieved with the `getHeaders()` method.
+Swift Mailer &#8211; において、メッセージ自身 &#8211; を含むすべての MIME エンティティ。これらのヘッダーを HeaderSet と呼ばれる単独のオブジェクトに保存します。HeaderSet は `getHeaders()` メソッドで読み取られます。
 
-As mentioned in the previous chapter, everything that forms a part of a
-message in Swift Mailer is a MIME entity that is represented by an instance of
-`Swift_Mime_MimeEntity`. This includes &#8211; most notably &#8211; the
-message object itself, attachments, MIME parts and embedded images. Each of
-these MIME entities consists of a body and a set of headers that describe the
-body.
+以前の章で述べたように、Swift Mailer においてメッセージのパーツを形成するものはすべて `Swift_Mime_MimeEntity` のインスタンスで表される MIME エンティティです。これに含まれるのは &#8211; もっとも知られている &#8211; 
+メッセージオブジェクトそのもの、添付物、MIME パートと埋め込み画像です。これらの MIME エンティティはそれぞれボディとボディを記述するヘッダーのセットから校正されます。
 
-For all of the "standard" headers in these MIME entities, such as the
-`Content-Type`, there are named methods for working with them,
-such as `setContentType()` and
-`getContentType()`. This is because headers are a moderately
-complex area of the library. Each header has a slightly different required
-structure that it must meet in order to comply with the standards that govern
-email (and that are checked by spam blockers etc).
+`Content-Type` など
+これらの MIME エンティティの「標準的な」すべてのヘッダーに関して、`setContentType()` や
+`getContentType()` などの、これらと取り組むための名前がつけられているメソッドが用意されています。これはヘッダーはライブラリの適度に複雑な領域だからです。それぞれのヘッダーには (とスパムブロッカーによってチェックされるなどの) メールを管理する標準に応じるために満たさなければならない、微妙に異なる必須の構造があります。
 
-You fetch the HeaderSet from a MIME entity like so:
+次のような MIME エンティティから HeaderSet をフェッチできます:
 
     [php]
     $message = Swift_Message::newInstance();
 
-    //Fetch the HeaderSet from a Message object
+    //Message オブジェクトから HeaderSet をフェッチします
     $headers = $message->getHeaders();
 
     $attachment = Swift_Attachment::fromPath('document.pdf');
 
-    //Fetch the HeaderSet from an attachment object
+    //Attachment オブジェクトから HeaderSet をフェッチします
     $headers = $attachment->getHeaders();
 
-The job of the HeaderSet is to contain and manage instances of Header objects.
-Depending upon the MIME entity the HeaderSet came from, the contents of the
-HeaderSet will be different, since an attachment for example has a different
-set of headers to those in a message.
+HeaderSet の仕事は Header オブジェクトのインスタンスを保持し管理することです。HeaderSet が由来する MIME エンティティによって HeaderSet の内容は異なります。たとえば、添加物にメッセージにおいてこれらと異なるヘッダーのセットが含まれるからです。
 
-You can find out what the HeaderSet contains with a quick loop, dumping out
-the names of the headers:
+ヘッダーの名前を吐き出すクイックループで HeaderSet に何がを含まれているのかわかります:
 
     [php]
     foreach ($headers->getAll() as $header) {
@@ -64,8 +48,7 @@ the names of the headers:
     To
     */
 
-You can also dump out the rendered HeaderSet by calling its
-`toString()` method:
+`toString()` メソッドを呼び出すことでレンダリングされた HeaderSet を吐き出すこともできます:
 
     [php]
     echo $headers->toString();
@@ -81,20 +64,11 @@ You can also dump out the rendered HeaderSet by calling its
     Content-Transfer-Encoding: quoted-printable
     */
 
-Where the complexity comes in is when you want to modify an existing header.
-This complexity comes from the fact that each header can be of a slightly
-different type (such as a Date header, or a header that contains email
-addresses, or a header that has key-value parameters on it&#8230;). Each
-header in the HeaderSet is an instance of `Swift_Mime_Header`.
-They all have common functionality, but knowing exactly what type of header
-you're working with will allow you a little more control.
+複雑性がやってくるのは既存のへダーを修正したいときです。この複雑性はそれぞれのヘッダーが微妙に異なるタイプをもつことが可能であるという事実からやってきます (Date ヘッダー、もしくはメールアドレスを含むヘッダー、もしくは &#8230; の上のキーバリューパラメータをもつヘッダーなど)。HeaderSet のそれぞれのヘッダーは `Swift_Mime_Header` のインスタンスです。
+これらすべてには共通の機能がありますが、取り組んでいるヘッダーが種類が何であるのか正確に知っていれば、もう少しコントールできるようになります。
 
-You can determine the type of header by comparing the return value of its
-`getFieldType()` method with the constants
-`TYPE_TEXT`, `TYPE_PARAMETERIZED`,
-`TYPE_DATE`, `TYPE_MAILBOX`,
-`TYPE_ID` and `TYPE_PATH` which are defined in
-`Swift_Mime_Header`.
+`Swift_Mime_Header` で定義されている定数である `TYPE_TEXT`, `TYPE_PARAMETERIZED`, `TYPE_DATE`, `TYPE_MAILBOX`,
+`TYPE_ID` と `TYPE_PATH` と  `getFieldType()` メソッドの値を比較することでヘッダーの種類を決定することができます。
 
 
     [php]
@@ -127,40 +101,24 @@ You can determine the type of header by comparing the return value of its
     To: is a mailbox header
     */
 
-Headers can be removed from the set, modified within the set, or added to the
-set.
+ヘッダーはセットから削除したり、セットの範囲で修正したり、もしくはセットに追加することができます。
 
-The following sections show you how to work with the HeaderSet and explain the
-details of each implementation of `Swift_Mime_Header` that may
-exist within the HeaderSet.
+次の節では HeaderSet を扱う方法を示し、HeaderSet の範囲に存在する `Swift_Mime_Header` のそれぞれの実装を説明します。
 
-Header Types
-------------
+ヘッダーの種類
+---------------
 
-Because all headers are modeled on different data (dates, addresses,
-text&#8230;) there are different types of Header in Swift Mailer. Swift Mailer
-attempts to categorize all possible MIME headers into more general groups,
-defined by a small number of classes.
+すべてのヘッダーは異なるデータ (データ、アドレス、テキスト&#8230;) でモデリングされているので、Swift Mailer には異なる種類の Header が存在します。Swift Mailer はわずかな数のクラスを定義することで 利用可能な MIME ヘッダーをより一般的なグループにまとめようとします。
 
-### Text Headers
+### テキストのヘッダー
 
-Text headers are the simplest type of Header. They contain textual information
-with no special information included within it &#8211; for example the Subject
-header in a message.
+Text ヘッダーはもっともシンプルな Header です。これらはたとえばメッセージの Subject ヘッダーなど、それ &#8211 の範囲に含まれる特別ではない情報を含めてテキスト情報を含みます。
 
-There's nothing particularly interesting about a text header, though it is
-probably the one you'd opt to use if you need to add a custom header to a
-message. It represents text just like you'd think it does. If the text
-contains characters that are not permitted in a message header (such as new
-lines, or non-ascii characters) then the header takes care of encoding the
-text so that it can be used.
+Text ヘッダーに関して特筆することはありませんが、メッセージにカスタムヘッダーを追加する必要があれば、おそらくこれがもっとも使いたいものでしょう。これはご想像どおりテキストをあらわします。テキストにメッセージヘッダーで許可されない文字が含まれる場合 (改行もしくは ASCII ではない文字) ヘッダーはテキストのエンコーディングを配慮します。
 
-No header &#8211; including text headers &#8211; in Swift Mailer is vulnerable
-to header-injection attacks. Swift Mailer breaks any attempt at header
-injection by encoding the dangerous data into a non-dangerous form.
+Swift Mailer において Text ヘッダー &#8211; を含めて ヘッダーではないものはヘッダーインジェクション攻撃に対して脆弱性を持ちます。Swift Mailer は危険なデータを危険ではない形式にエンコーディングすることでヘッダーインジェクションへの試みを阻止します。
 
-It's easy to add a new text header to a HeaderSet. You do this by calling the
-HeaderSet's `addTextHeader()` method.
+HeaderSet に新しい Text ヘッダーを追加することはかんたんです。HeaderSet の `addTextHeader()` メソッドを呼び出すことでこれを実現できます。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -169,16 +127,14 @@ HeaderSet's `addTextHeader()` method.
 
     $headers->addTextHeader('Your-Header-Name', 'the header value');
 
-Changing the value of an existing text header is done by calling it's
-`setValue()` method.
+`setValue()` メソッドを呼び出すことで、既存の Text ヘッダーの値を変更することができます。
 
     [php]
     $subject = $message->getHeaders()->getHeader('Subject');
 
     $subject->setValue('new subject');
 
-When output via `toString()`, a text header produces something
-like the following:
+`toString()` メソッドを出力するとき、Text ヘッダーは次のような内容を生み出します:
 
     [php]
     $subject = $message->getHeaders()->getHeader('Subject');
@@ -193,9 +149,7 @@ like the following:
 
     */
 
-If the header contains any characters that are outside of the US-ASCII range
-however, they will be encoded. This is nothing to be concerned about since
-mail clients will decode them back.
+ヘッダーに US-ASCII の外側の範囲にある文字が含まれる場合、これらはエンコードされます。メールクライアントがこれらをデコードして戻すので、このことを気にする必要はありません。
 
     [php]
     $subject = $message->getHeaders()->getHeader('Subject');
@@ -210,22 +164,14 @@ mail clients will decode them back.
 
     */
 
-### Parameterized Headers
+### パラメータ化されたヘッダー
 
-Parameterized headers are text headers that contain key-value parameters
-following the textual content. The Content-Type header of a message is a
-parameterized header since it contains charset information after the content
-type.
+パラメータ化されたヘッダーはテキストのコンテキストをフォローするキーバリューのパラメータを含む Text ヘッダーです。メッセージの Content-Type ヘッダーはパラメータ化されたヘッダーです。Content-Type のあとで文字集合の情報を含むからです。
 
-The parameterized header type is a special type of text header. It extends the
-text header by allowing additional information to follow it. All of the
-methods from text headers are available in addition to the methods described
-here.
+パラメータ化されたヘッダー Text ヘッダーの特殊な種類のヘッダーです。これは Text ヘッダーをフォローする追加情報を許可することで Text ヘッダーを拡張します。ここで説明したメソッドに加えて Text ヘッダーからのすべてのメソッドが利用可能です。
 
-Adding a parameterized header to a HeaderSet is done by using the
-`addParameterizedHeader()` method which takes a text value like
-`addTextHeader()` but it also accepts an associative array of
-key-value parameters.
+HeaderSet にパラメータ化されたヘッダーを追加することは `addParameterizedHeader()` メソッドによって実現できます。このメソッドは
+`addTextHeader()` のようにテキストの値をとりますが、キーバリューパラメータの連想配列、も受け入れます。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -237,27 +183,25 @@ key-value parameters.
       array('foo' => 'bar')
       );
 
-To change the text value of the header, call it's `setValue()`
-method just as you do with text headers.
+ヘッダーのテキストの値を変更するには、Text ヘッダーのように `setValue()`
+メソッドを呼び出します。
 
-To change the parameters in the header, call the header's
-`setParameters()` method or the `setParameter()`
-method (note the pluralization).
+ヘッダーのパラメータを変更するには、ヘッダーの `setParameters()` もしくは `setParameter()`
+メソッドを呼び出します (複数形にご注目)。
 
     [php]
     $type = $message->getHeaders()->getHeader('Content-Type');
 
-    //setParameters() takes an associative array
+    //setParameters() メソッドは連想配列をとります
     $type->setParameters(array(
       'name' => 'file.txt',
       'charset' => 'iso-8859-1'
       ));
 
-    //setParameter() takes two args for $key and $value
+    //setParameter() メソッドは $key と $value の2つの引数をとります
     $type->setParameter('charset', 'iso-8859-1');
 
-When output via `toString()`, a parameterized header produces
-something like the following:
+`toString()` メソッドを通じて出力するとき、パラメータ化されたヘッダーは次の内容を出力します:
 
     [php]
     $type = $message->getHeaders()->getHeader('Content-Type');
@@ -273,11 +217,7 @@ something like the following:
 
     */
 
-If the header contains any characters that are outside of the US-ASCII range
-however, they will be encoded, just like they are for text headers. This is
-nothing to be concerned about since mail clients will decode them back.
-Likewise, if the parameters contain any non-ascii characters they will be
-encoded so that they can be transmitted safely.
+ヘッダーに US-ASCII の範囲の外側にある任意の文字が含まれる場合、Text ヘッダーのように、これらはエンコードされます。メールクライアントがこれらをデコードして戻すのでこのことを気にする必要はありません。同じように、パラメータが ASCII ではない文字を含む場合、これらの文字は安全に送り届けられるようにエンコードされます。
 
     [php]
     $attachment = Swift_Attachment::newInstance();
@@ -295,22 +235,15 @@ encoded so that they can be transmitted safely.
 
     */
 
-### Date Headers
+### 日付ヘッダー
 
-Date headers contains an RFC 2822 formatted date (i.e. what PHP's
-`date('r')` returns). They are used anywhere a date or time is
-needed to be presented as a message header.
+Date ヘッダーは日付のフォーマットをする RFC 2822 を含みます (すなわち PHP の `date('r')` の戻り値)。これらは日付や時間をメッセージヘッダーとして表すことが必要な場所で使うことができます。
 
-The data on which a date header is modeled is simply a UNIX timestamp such as that
-returned by `time()` or `strtotime()`.  The timestamp
-is used to create a correctly structured RFC 2822 formatted date such as
-`Tue, 17 Feb 2009 22:26:31 +1100`.
+Date ヘッダーによってモデリングされているデータは `time()` もしくは `strtotime()` によって返される UNIX タイムスタンプです。タイムスタンプは `Tue, 17 Feb 2009 22:26:31 +1100` などのRFC 2822 の構造化されフォーマットされた正しい日付を作るために使われます。
 
-The obvious place this header type is used is in the `Date:` header
-of the message itself.
+このヘッダー型が使われる明らかな場所はメッセージ自身の `Date:` ヘッダーです。
 
-It's easy to add a new date header to a HeaderSet.  You do this by calling
-the HeaderSet's `addDateHeader()` method.
+HeaderSet に新しい Date ヘッダーを追加することはかんたんです。HeaderSet の `addDateHeader()` メソッドを呼び出すことで実現できます。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -319,16 +252,14 @@ the HeaderSet's `addDateHeader()` method.
 
     $headers->addDateHeader('Your-Header-Name', strtotime('3 days ago'));
 
-Changing the value of an existing date header is done by calling it's
-`setTimestamp()` method.
+Date ヘッダーの既存の値を変更するには `setTimestamp()` メソッドを呼び出します。
 
     [php]
     $date = $message->getHeaders()->getHeader('Date');
 
     $date->setTimestamp(time());
 
-When output via `toString()`, a date header produces something
-like the following:
+`toString()` メソッドを通じて出力するとき、 Date ヘッダーは次のような内容を生み出します:
 
     [php]
     $date = $message->getHeaders()->getHeader('Date');
@@ -341,23 +272,15 @@ like the following:
 
     */
 
-### Mailbox (e-mail address) Headers
+### メールボックスヘッダー (電子メールアドレス)
 
-Mailbox headers contain one or more email addresses, possibly with
-personalized names attached to them. The data on which they are modeled is
-represented by an associative array of email addresses and names.
+Mailbox ヘッダーは1つもしくは複数のヘッダーを含みます。おそらくは個人化された名前がこれらに添付されます。これらがモデリングされるデータはメールアドレスと名前の連想配列によって表されます。
 
-Mailbox headers are probably the most complex header type to understand in
-Swift Mailer because they accept their input as an array which can take
-various forms, as described in the previous chapter.
+Swift Mailer において Mailbox ヘッダーはおそらくもっとも複雑なヘッダーのタイプです。以前の章で説明したように、これらがさまざまな形式をとるのことできる入力を配列として受け入れるからです。
 
-All of the headers that contain e-mail addresses in a message &#8211; with the
-exception of `Return-Path:` which has a stricter syntax &#8211;
-use this header type. That is, `To:`, `From:`
-etc.
+より厳密な構文 &#8211; を持つ `Return-Path` を除いて、メッセージのなかでメールアドレスを含むすべてのへダーは &#8211; このヘッダータイプを使います。すなわち `To:`、 `From:` などです。
 
-You add a new mailbox header to a HeaderSet by calling the HeaderSet's
-`addMailboxHeader()` method.
+HeaderSet の `addMailboxHeader()` メソッドを呼び出すことで HeaderSet に新しい Mailbox ヘッダーを追加します。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -371,8 +294,7 @@ You add a new mailbox header to a HeaderSet by calling the HeaderSet's
       'person4@example.org' => 'Another named person'
       ));
 
-Changing the value of an existing mailbox header is done by calling it's
-`setNameAddresses()` method.
+Mailbox ヘッダーの既存の値を変更するには `setNameAddresses()` メソッドを呼び出すことで実現できます。
 
     [php]
     $to = $message->getHeaders()->getHeader('To');
@@ -383,10 +305,7 @@ Changing the value of an existing mailbox header is done by calling it's
       'no-name@example.org'
       ));
 
-If you don't wish to concern yourself with the complicated accepted input
-formats accepted by `setNameAddresses()` as described in the previous chapter
-and you only want to set one or more addresses (not names) then you can just
-use the `setAddresses()` method instead.
+以前の章で説明したように `setNameAddresses()` メソッドとして受け入れられる複雑な入力フォーマットを自分で理解したいとは思わず (名前ではなく 1つもしくは複数のアドレスだけをセットしたいのであれば、`setAddresses()` メソッドを代わりに使うことができます。
 
     [php]
     $to = $message->getHeaders()->getHeader('To');
@@ -398,19 +317,17 @@ use the `setAddresses()` method instead.
       ));
 
 >**NOTE**
->Both methods will accept the above input format in practice.
+>両方のメソッドとも実際の入力フォーマットを受け入れます。
 
-If all you want to do is set a single address in the header, you can use a
-string as the input parameter to `setAddresses()` and/or
-`setNameAddresses()`.
+ヘッダーのなかで単独のアドレスだけが必要であれば、文字列を `setAddresses()` かつ/もしくは
+`setNameAddresses()` メソッドへの入力パラメータとして使うことができます。
 
     [php]
     $to = $message->getHeaders()->getHeader('To');
 
     $to->setAddresses('joe-bloggs@example.org');
 
-When output via `toString()`, a mailbox header produces
-something like the following:
+`toString()` メソッドを通じて出力するとき、Mailbox ヘッダーは次のような内容を生み出します:
 
     [php]
     $to = $message->getHeaders()->getHeader('To');
@@ -425,29 +342,20 @@ something like the following:
 
     /*
 
-    To: Name of Person <person1@example.org>, person2@example.org, Another Person
+    To: 個人の名前 <person1@example.org>, person2@example.org, 別の個人
      <person3@example.org>
 
     */
 
-### ID Headers
+### ID ヘッダー
 
-ID headers contain identifiers for the entity (or the message). The most
-notable ID header is the Message-ID header on the message itself.
+ID ヘッダーはエンティティの識別子 (もしくはメッセージ) を含みます。もっとも著名な ID ヘッダーはメッセージ自身の  Message-ID ヘッダーです。
 
-An ID that exists inside an ID header looks more-or-less less like an email
-address.  For example, `<![CDATA[<1234955437.499becad62ec2@example.org>]]>`.
-The part to the left of the @ sign is usually unique, based on the current time and
-some random factor.  The part on the right is usually a domain name.
+ID ヘッダー内部に存在する ID はいくぶんかメールアドレスのように見えます。たとえば、 `<![CDATA[<1234955437.499becad62ec2@example.org>]]>`。@ 記号の左側の部分は通常はユニークで、現在の時刻とランダムファクタにもとづいています。右側の部分は通常はドメインの名前です。
 
-Any ID passed the an ID header's `setId()` method absolutely
-MUST conform to this structure, otherwise you'll get an Exception thrown at you
-by Swift Mailer (a `Swift_RfcComplianceException`).  This is to
-ensure that the generated email complies with relevant RFC documents and therefore
-is less likely to be blocked as spam.
+ID ヘッダーの `setId()` メソッドはこの構造にしたがわなければなりません。さもなければ Swift Mailer (`Swift_RfcComplianceException`) によって例外を得ることになります。このことによって、生成されたメールは適切な RFC ドキュメントでコンパイルされスパムとしてブロックされにくくなることが保証されます。
 
-It's easy to add a new ID header to a HeaderSet.  You do this by calling
-the HeaderSet's `addIdHeader()` method.
+HeaderSet に新しい ID ヘッダーを追加するのはかんたんです。HeaderSet の `addIdHeader()` メソッドを呼び出すことでこれを実現できます。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -456,16 +364,14 @@ the HeaderSet's `addIdHeader()` method.
 
     $headers->addIdHeader('Your-Header-Name', '123456.unqiue@example.org');
 
-Changing the value of an existing date header is done by calling its
-`setId()` method.
+既存の日付ヘッダーを変更するには `setId()` メソッドを呼び出します。
 
     [php]
     $msgId = $message->getHeaders()->getHeader('Message-ID');
 
     $msgId->setId(time() . '.' . uniqid('thing') . '@example.org');
 
-When output via `toString()`, an ID header produces something
-like the following:
+`toString()` を通じて出力するとき、ID ヘッダーは次の内容を生み出します:
 
     [php]
     $msgId = $message->getHeaders()->getHeader('Message-ID');
@@ -478,14 +384,12 @@ like the following:
 
     */
 
-### Path Headers
+### パスヘッダー
 
-Path headers are like very-restricted mailbox headers. They contain a single
-email address with no associated name. The Return-Path header of a message is
-a path header.
+Path ヘッダーはとても制限された Mailbox ヘッダーのようです。これらは関連していない名前で単独のメールアドレスを含みます。メッセージの `Return-Path` ヘッダーは Path ヘッダーです。
 
-You add a new path header to a HeaderSet by calling the HeaderSet's
-`addPathHeader()` method.
+HeaderSet の
+`addPathHeader()` メソッドを呼び出すことで HeaderSet に新しい Path ヘッダーを追加します。
 
     [php]
     $message = Swift_Message::newInstance();
@@ -495,16 +399,14 @@ You add a new path header to a HeaderSet by calling the HeaderSet's
     $headers->addPathHeader('Your-Header-Name', 'person@example.org');
 
 
-Changing the value of an existing path header is done by calling its
-`setAddress()` method.
+`setAddress()` メソッドを呼び出すことで Path ヘッダーの既存の値を変更できます。
 
     [php]
     $return = $message->getHeaders()->getHeader('Return-Path');
 
     $return->setAddress('my-address@example.org');
 
-When output via `toString()`, a path header produces something
-like the following:
+`toString()` メソッドを通じて出力するとき、Path ヘッダーは次のような内容を出力します:
 
     [php]
     $return = $message->getHeaders()->getHeader('Return-Path');
@@ -519,187 +421,154 @@ like the following:
 
     */
 
-Header Operations
------------------
+ヘッダーのオペレーション
+------------------------
 
-Working with the headers in a message involves knowing how to use the methods
-on the HeaderSet and on the individual Headers within the HeaderSet.
+メッセージの中でヘッダーを扱うことは HeaderSet HeaderSet の範囲での個別のヘッダーでのメソッドの使い方を知ることを含みます。
 
-### Adding new Headers
+### 新しいヘッダーを追加する
 
-New headers can be added to the HeaderSet by using one of the provided
-`add..Header()` methods.
+`add..Header()` メソッドによって提供されるメソッドを使うことで HeaderSet に新しいヘッダーを追加できます。
 
-To add a header to a MIME entity (such as the message):
+MIME エンティティにヘッダーを追加するには (メッセージなど):
 
-Get the HeaderSet from the entity by via its `getHeaders()`
-method.
+ * `getHeaders()` メソッドを通じてエンティティから HeadSet を取得します。
 
- * Add the header to the HeaderSet by calling one of the `add..Header()`
-   methods.
+ * `add..Header()` メソッド群の1つを呼び出して HeadSet にヘッダーを追加します。
 
-The added header will appear in the message when it is sent.
+追加されたヘッダーがメッセージが送信されるときにあらわれます。
 
     [php]
-    //Adding a custom header to a message
+    //メッセージにカスタムヘッダーを追加します
     $message = Swift_Message::newInstance();
     $headers = $message->getHeaders();
     $headers->addTextHeader('X-Mine', 'something here');
 
-    //Adding a custom header to an attachment
+    //添付物にカスタムヘッダーを追加します
     $attachment = Swift_Attachment::fromPath('/path/to/doc.pdf');
     $attachment->getHeaders()->addDateHeader('X-Created-Time', time());
 
-### Retrieving Headers
+### ヘッダーを読み出す
 
-Headers are retrieved through the HeaderSet's `get()` and
-`getAll()` methods.
+ヘッダーは HeaderSet の `get()` と
+`getAll()` メソッドを通じて読み取られます。
 
-To get a header, or several headers from a MIME entity:
+MIME エンティティから１つもしくは複数のヘッダーを得るには:
 
- * Get the HeaderSet from the entity by via its `getHeaders()` method.
+ * `getHeaders()` メソッドを通じてエンティティから HeaderSet を得ます。
 
- * Get the header(s) from the HeaderSet by calling either `get()` or `getAll()`.
+ * `get()` もしくは `getAll()` メソッドのどちらを呼び出して HeaderSet からヘッダーを得ます。
 
-When using `get()` a single header is returned that matches the
-name (case insensitive) that is passed to it. When using
-`getAll()` with a header name, an array of headers with that
-name are returned. Calling `getAll()` with no arguments returns
-an array of all headers present in the entity.
+`get()` メソッドを使うとき、単独のヘッダーはそれに渡された名前(大文字小文字を区別しない)にマッチする値を返します。ヘッダーの名前で `getAll()` メソッドを呼び出すとき、その名前と一緒にヘッダーの配列が返されます。引数なしで `getAll()` メソッドを呼び出すとエンティティに存在するすべてのヘッダーの配列を返します。
 
 >**NOTE**
->It's valid for some headers to appear more than once in a message (e.g. the
->Received header). For this reason `getAll()` exists to fetch
->all headers with a specified name. In addition, `get()` accepts
->an optional numerical index, starting from zero to specify which header you
->want more specifically.
+>これはメッセージのなかで複数回表れるヘッダーに妥当です (たとえば Received ヘッダー)。このために指定した名前ですべてのヘッダーをフェッチする `getAll()` メソッドが用意されています。加えて、`get()` メソッド ゼロからより明確に指定したいヘッダーではじまるオプションの数値インデックスで `get()` メソッドが用意されています。
 
 >**NOTE**
->If you want to modify the contents of the header and you don't know for sure
->what type of header it is then you may need to check the type by calling its
->`getFieldType()` method.
+>ヘッダーの内容を修正したいのであれば、ヘッダーの種類が何であるのか細かい内容を知る必要はありません。`getFieldType()` メソッドを呼び出すことでヘッダーの種類をチェックする必要があるかもしれません。
 
     [php]
     $headers = $message->getHeaders();
 
-    //Get the To: header
+    //To: ヘッダーを取得します
     $toHeader = $headers->get('To');
 
-    //Get all headers named "X-Foo"
+    //「X-Foo」という名前のヘッダーをすべて取得します
     $fooHeaders = $headers->getAll('X-Foo');
 
-    //Get the second header named "X-Foo"
+    //「X-Foo」という名前の2番目のヘッダーを取得します
     $foo = $headers->get('X-Foo', 1);
 
-    //Get all headers that are present
+    //存在するすべてのヘッダーを取得します
     $all = $headers->getAll();
 
-### Check if a Header Exists
+### ヘッダーが存在するかチェックする
 
-You can check if a named header is present in a HeaderSet by calling its
-`has()` method.
+`has()` メソッドを呼び出すことで名前つきヘッダーが HeaderSet に存在するかチェックできます。
 
-To check if a header exists:
+ヘッダーが存在するかチェックするには:
 
- * Get the HeaderSet from the entity by via its `getHeaders()` method.
+ * `getHeaders()` メソッドを通じてエンティティから HeaderSet を得ます。
 
- * Call the HeaderSet's `has()` method specifying the header you're looking for.
-
-If the header exists, `true` will be returned or
-`false` if not.
+ * お探しのヘッダーを指定する HeaderSet の `has()` メソッドを呼び出します。
+ 
+ヘッダーが存在していれば、`true` が返され、存在していなければ `false` が返されます。
 
 >**NOTE**
->It's valid for some headers to appear more than once in a message (e.g. the
->Received header). For this reason `has()` accepts an optional
->numerical index, starting from zero to specify which header you want to check
->more specifically.
+>メッセージのなかで複数回ヘッダーが表れるのは妥当です (たとえば Received ヘッダー)。このために `has()` はゼロからより細かくチェックしたいヘッダーを指定するゼロから始まるオプションの数値インデックスを受け入れます。
 
     [php]
     $headers = $message->getHeaders();
 
-    //Check if the To: header exists
+    //To: ヘッダーが存在しているかチェックします
     if ($headers->has('To')) {
       echo 'To: exists';
     }
 
-    //Check if an X-Foo header exists twice (i.e. check for the 2nd one)
+    //X-Foo ヘッダーが重複しているかチェックします (すなわち、2番目をチェックします)
     if ($headers->has('X-Foo', 1)) {
       echo 'Second X-Foo header exists';
     }
 
-### Removing Headers
+### ヘッダーを削除する
 
-Removing a Header from the HeaderSet is done by calling the HeaderSet's
-`remove()` or `removeAll()` methods.
+HeaderSet から Header を削除するには HeaderSet の
+`remove()` もしくは `removeAll()` メソッドを呼び出すことで実行します。
 
-To remove an existing header:
+既存のヘッダーを削除するには:
 
- * Get the HeaderSet from the entity by via its `getHeaders()`
-   method.
+ * `getHeaders()` メソッドを通じてエンティティから HeaderSet を得ます
 
- * Call the HeaderSet's `remove()` or
-   `removeAll()` methods specifying the header you want to
-   remove.
+ * 削除したいヘッダーを指定する `remove()` もしくは
+   `removeAll()` メソッドを呼び出します
 
-When calling `remove()` a single header will be removed. When
-calling `removeAll()` all headers with the given name will be
-removed. If no headers exist with the given name, no errors will occur.
+`remove()` メソッドを呼び出すとき、単独のヘッダーが削除されます。`removeAll()` メソッドを呼び出すとき、任意の名前ですべてのヘッダーが削除されます。渡された名前のヘッダーが存在していなければ、エラーになります。
 
 >**NOTE**
->It's valid for some headers to appear more than once in a message (e.g. the
->Received header). For this reason `remove()` accepts an
->optional numerical index, starting from zero to specify which header you want
->to check more specifically. For the same reason, `removeAll()`
->exists to remove all headers that have the given name.
+>１つのメッセージのなかでヘッダーが複数回表れるのは妥当です (たとえば `Received` ヘッダー)。この理由のために  `remove()` メソッドはオプションの数値インデックスを受けつけ、より細かくチェックしたいヘッダーを指定できます。この理由のために任意の名前をもつすべてのヘッダーを削除する `removeAll()` が用意されています。
 
     [php]
     $headers = $message->getHeaders();
 
-    //Remove the Subject: header
+    //Subject: ヘッダーを削除します
     $headers->remove('Subject');
 
-    //Remove all X-Foo headers
+    //すべての X-Foo ヘッダーを削除します
     $headers->removeAll('X-Foo');
 
-    //Remove only the second X-Foo header
+    //2番目の X-Foo ヘッダーだけを削除します
     $headers->remove('X-Foo', 1);
 
-### Modifying a Header's Content
+### ヘッダーのコンテンツを修正する
 
-To change a Header's content you should know what type of header it is and
-then call it's appropriate setter method. All headers also have a
-`setFieldBodyModel()` method that accepts a mixed parameter and
-delegates to the correct setter.
+Header の内容を変更するには ヘッダーの種類がどんなものであるのか知る必要があり、適切なセッターメソッドを呼び出す必要があります。すべてのヘッダーには 混在型のパラメータと正しいセッターへのデリゲートを受けつける `setFieldBodyModel()` メソッドも用意されています。
 
-To modify an existing header:
+既存のヘッダーを修正するには:
 
- * Get the HeaderSet from the entity by via its `getHeaders()`
-   method.
+ * `getHeaders()` メソッドを通じてエンティティから headerSet を得ます。
 
- * Get the Header by using the HeaderSet's `get()`.
+ * HeaderSet の `get()` メソッドを使うことで Header を得ます。
 
- * Call the Header's appropriate setter method or call the header's
-   `setFieldBodyModel()` method.
+ * Header の適切なセッターメソッドを呼び出すもしくはヘッダーの `setFieldBodyModel()` メソッドを呼び出します。
 
-The header will be updated inside the HeaderSet and the changes will be seen
-when the message is sent.
+HeaderSet 内部でヘッダーがアップデートされメッセージが送信されるときに変更が見えるようになります。
 
     [php]
     $headers = $message->getHeaders();
 
-    //Change the Subject: header
+    //Subject: ヘッダーを変更します
     $subj = $headers->get('Subject');
     $subj->setValue('new subject here');
 
-    //Change the To: header
+    //To: ヘッダーを変更します
     $to = $headers->get('To');
     $to->setNameAddresses(array(
       'person@example.org' => 'Person',
       'thing@example.org'
     ));
 
-    //Using the setFieldBodyModel() just delegates to the correct method
-    // So here to calls setNameAddresses()
+    //setFieldBodyModel() を使えば正しいメソッドにデリゲートされ
+    // ここではsetNameAddresses() が呼び出されます。
     $to->setFieldBodyModel(array(
       'person@example.org' => 'Person',
       'thing@example.org'

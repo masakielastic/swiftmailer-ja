@@ -1,270 +1,193 @@
-Plugins
-=======
+プラグイン
+==========
 
-Plugins are provided with Swift Mailer and can be used to extend the behavior
-of the library in ways that simple class inheritance would be more complex.
+Swift Mailer によって提供されるプラグインはシンプルなクラス継承がより複雑になる方法でプラグインのふるまいを拡張するために使います。
 
-AntiFlood Plugin
-----------------
+AntiFlood プラグイン
+--------------------
 
-Many SMTP servers have limits on the number of messages that may be sent
-during any single SMTP connection. The AntiFlood plugin provides a way to stay
-within this limit while still managing a large number of emails.
+多くの SMTP サーバーには単独の SMTP コネクションのあいだに送ることのできるメッセージ数の制限があります。AntiFlood プラグインは膨大な数のメールを管理しながらこの制限の範囲にとどまる方法を提供します。
 
-A typical limit for a single connection is 100 emails. If the server you
-connect to imposes such a limit, it expects you to disconnect after that
-number of emails has been sent. You could manage this manually within a loop,
-but the AntiFlood plugin provides the necessary wrapper code so that you don't
-need to worry about this logic.
+単独のコネクションのよくある制限は100通のメールです。サーバーにこのような制限を課すために、その制限数のメールが送られた後でコネクションを解除することが要求されます。ループと手作業でこれを何とかすることはできますが、 AntiFlood プラグインはこのロジックに悩まなくてすむように必要なラッパーコードを提供します。
 
-Regardless of limits imposed by the server, it's usually a good idea to be
-conservative with the resources of the SMTP server. Sending will become
-sluggish if the server is being over-used so using the AntiFlood plugin will
-not be a bad idea even if no limits exist.
+サーバーによって課せられた制限にかかわらず、SMTP サーバーのリソースに対して保守的であることは通常はよいアイディアです。サーバーが過剰に使われていると送信が遅くなりますので AntiFlood プラグインを使うことは制限が存在しなければわるいアイディアにはなりません。
 
-The AntiFlood plugin's logic is basically to disconnect and the immediately
-re-connect with the SMTP server every X number of emails sent, where X is a
-number you specify to the plugin.
+AntiFlood プラグインの基本ロジックはプラグインで指定した X 回のメールの数を送信するたびに SMTP サーバーとのコネクションを解除してからすぐに確立することです。
 
-You can also specify a time period in seconds that Swift Mailer should pause
-for between the disconnect/re-connect process. It's a good idea to pause for a
-short time (say 30 seconds every 100 emails) simply to give the SMTP server a
-chance to process its queue and recover some resources.
+キューを処理してある程度のリソースを回復させる機会を SMTP サーバーに提供するために短い時間 (たとえば100通のメールごとに30秒) のポーズをするのはよいアイディアです。
 
-### Using the AntiFlood Plugin
+### AntiFlood プラグイン
 
-The AntiFlood Plugin &#8211; like all plugins &#8211; is added with the Mailer
-class' `registerPlugin()` method. It takes two constructor
-parameters: the number of emails to pause after, and optionally the number of
-seconds to pause for.
+AntiFlood プラグインはほかのすべてのプラグインと同じように Swift  Mailer クラスの `registerPlugin()` メソッドで登録されます。これは2つのコンストラクタパラメータをとります: ポーズするまでの送信するメールの数と、オプションとしてポーズする秒数
 
-To use the AntiFlood plugin:
+AntiFlood プラグインを使うには:
 
- * Create an instance of the Mailer using any Transport you choose.
+ * 選んだ Transport を使って Mailer のインスタンスを作ります。
 
- * Create an instance of the `Swift_Plugins_AntiFloodPlugin`
-   class, passing in one or two constructor parameters.
+ * 1つもしくは2つのコンストラクタパラメータを渡して `Swift_Plugins_AntiFloodPlugin` クラスのインスタンスを作ります。
 
- * Register the plugin using the Mailer's `registerPlugin()`
-   method.
+ * Mailer の `registerPlugin()` メソッドを使ってプラグインを登録します。
 
- * Continue using Swift Mailer to send messages as normal.
+ * 通常どおりにメッセージを送るために Swift Mailer を使って、続けます。
 
-When Swift Mailer sends messages it will count the number of messages that
-have been sent since the last re-connect. Once the number hits your specified
-threshold it will disconnect and re-connect, optionally pausing for a
-specified amount of time.
+Swift Mailer がメッセージを送るとき、最後のコネクションから送られたメッセージの数をカウントします。カウント数が指定したしきい値に到達すると、コネクションの切断と再確立を行い、オプションとして指定された秒数だけ停止します。
 
-Both `batchSend()` and `send()` methods will
-work with this plugin.
+`batchSend()` と `send()` メソッドの両方はこのプラグインで動きます。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Mailer using any Transport
+    //Transport を使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance(
       Swift_SmtpTransport::newInstance('smtp.example.org', 25)
     );
 
-    //Use AntiFlood to re-connect after 100 emails
+    //100通のメールの後でコネクションを再確立するために AntiFlood を使います
     $mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin(100));
 
-    //Or specify a time in seconds to pause for (30 secs)
+    //もしくは停止時間を指定します (30秒)
     $mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin(100, 30));
 
-    //Continue sending as normal
+    //通常どおりメールの送信を継続します
     for ($lotsOfRecipients as $recipient) {
       ...
 
       $mailer->send( ... );
     }
 
-Throttler Plugin
-----------------
+Throttler プラグイン
+--------------------
 
-If your SMTP server has restrictions in place to limit the rate at which you
-send emails, then your code will need to be aware of this rate-limiting. The
-Throttler plugin makes Swift Mailer run at a rate-limited speed.
+SMTP サーバーにはメール送信時のレート制限があるので、プログラムのコードはこのレート制限を認識する必要があります。Throttler プラグインは Swift Mailer をレート制限の速度で動作させます。
 
-Many shared hosts don't open their SMTP servers as a free-for-all. Usually
-they have policies in place (probably to discourage spammers) that only allow
-you to send a fixed number of emails per-hour/day.
+多くの共用ホストは SMTP サーバーを飛び入りでオープンすることを許可しません。(スパマーを思いとどまらせるために) 通常のホストの方針では 時間/1日単位で定められた数のメールだけ送信することが許可されます
 
-The Throttler plugin supports two modes of rate-limiting and with each, you
-will need to do that math to figure out the values you want. The plugin can
-limit based on the number of emails per minute, or the number of
-bytes-transferred per-minute.
+Throttler プラグイン律速の2つのモードをサポートし、値を算出するために算数を行うことが必要です。プラグインは分単位のメールの数もしくは分単位のバイトの転送量にもとづいて制限できます。
 
-### Using the Throttler Plugin
+### Throttler プラグインを使う
 
-The Throttler Plugin &#8211; like all plugins &#8211; is added with the Mailer
-class' `registerPlugin()` method. It has two required
-constructor parameters that tell it how to do its rate-limiting.
+Throttler プラグイン &#8211; はほかのすべてのプラグインのように &#8211; Mailer クラスの `registerPlugin()` メソッドで追加されます。律速を実行する方法を伝える
+必須のコンストラクタパラメータは2つです。
 
-To use the Throttler plugin:
+Throttler プラグインを使うには:
 
- * Create an instance of the Mailer using any Transport you choose.
+ * 選んだトランスポートを使って Mailer のインスタンスを作ります。
 
- * Create an instance of the `Swift_Plugins_ThrottlerPlugin`
-   class, passing the number of emails, or bytes you wish to limit by, along
-   with the mode you're using.
+ * `Swift_Plugins_ThrottlerPlugin` クラスのインスタンスを作り、使っているモードと一緒に、制限したいメールの数もしくはバイト数を渡します。
 
- * Register the plugin using the Mailer's `registerPlugin()`
-   method.
+ * Mailer の `registerPlugin()` メソッドを使ってプラグインを登録します。
 
- * Continue using Swift Mailer to send messages as normal.
+ * 通常どおりメッセージを送るために Swift Mailer を使い続けます。
 
-When Swift Mailer sends messages it will keep track of the rate at which
-sending messages is occuring. If it realises that sending is happening too
-fast, it will cause your program to `sleep()` for enough time
-to average out the rate.
+Swift Mailer がメールを送信したとき、メッセージ送信が行われる速度を追跡します。送信の頻度が多すぎることが判明したら、平均速度になるように `sleep()` が実行されます。
 
-Both `batchSend()` and `send()` methods will
-work with this plugin.
+`batchSend()` と `send()` メソッドの両方ともこのプラグインと連携します。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Mailer using any Transport
+    //トランスポートを使って Mailer を作ります
     $mailer = Swift_Mailer::newInstance(
       Swift_SmtpTransport::newInstance('smtp.example.org', 25)
     );
 
-    //Rate limit to 100 emails per-minute
+    //分単位の制限を 100 通にします
     $mailer->registerPlugin(new Swift_Plugins_ThrottlerPlugin(
       100, Swift_Plugins_ThrottlerPlugin::MESSAGES_PER_MINUTE
     ));
 
-    //Rate limit to 10MB per-minute
+    //分単位の制限を 10MB にします
     $mailer->registerPlugin(new Swift_Plugins_ThrottlerPlugin(
       1024 * 1024 * 10, Swift_Plugins_ThrottlerPlugin::BYTES_PER_MINUTE
     ));
 
-    //Continue sending as normal
+    //通常どおりに送信を続けます
     for ($lotsOfRecipients as $recipient) {
       ...
 
       $mailer->send( ... );
     }
 
-### Logger Plugin
+### Logger プラグイン
 
-The Logger plugins helps with debugging during the process of sending. It can
-help to identify why an SMTP server is rejecting addresses, or any other
-hard-to-find problems that may arise.
+Logger プラグインは送信プロセスのあいだのデバッグ作業を支援します。SMTP サーバーがアドレスを拒否するのはなぜか、もしくは見つけずらい問題を特定することの助けになります。
 
-The Logger plugin comes in two parts. There's the plugin itself, along with
-one of a number of possible Loggers that you may choose to use. For example,
-the logger may output messages directly in realtime, or it may capture
-messages in an array.
+Logger プラグインは2つのパーツからなります。このプラグインに加えて、無数の可能性のあるロガーの１つを選べます。たとえば、ロガーがリアルタイムでメッセージを出力できたり、メッセージを配列形式でキャプチャできます。
 
-One other notable feature is the way in which the Logger plugin changes
-Exception messages. If Exceptions are being thrown but the error message does
-not provide conclusive information as to the source of the problem (such as an
-ambiguous SMTP error) the Logger plugin includes the entire SMTP transcript in
-the error message so that debugging becomes a simpler task.
+ほかには Exception メッセージを変更する機能がよく知られています。Exceptions が投げられるが、エラーメッセージが問題のソースに関する決定的な情報を提供しません  (あいまいな SMTP エラーなど) Logger プラグイン SMTP のトランスクリプト全体をエラーメッセージに含めるので、デバッグ作業はシンプルなタスクになります。
 
-There are a few available Loggers included with Swift Mailer, but writing your
-own implementation is incredibly simple and is achieved by creating a short
-class that implements the `Swift_Plugins_Logger` interface.
+Swift Mailer に含まれる利用可能なロガーはいくつかあります。独自の実装を書く作業は信じられないぐらいシンプルで `Swift_Plugins_Logger` インターフェイスを実装する短いクラスを作ることで実現されます。
 
- * `Swift_Plugins_Loggers_ArrayLogger`: Keeps a collection of log messages
-   inside an array. The array content can be cleared or dumped out to the
-   screen.
+ * `Swift_Plugins_Loggers_ArrayLogger`: Keeps a collection of log messages inside an array。配列の内容はクリアされるかスクリーンに吐き出されます。
 
- * `Swift_Plugins_Loggers_EchoLogger`: Prints output to the screen in
-   realtime. Handy for very rudimentary debug output.
+ * `Swift_Plugins_Loggers_EchoLogger`: はリアルタイムでスクリーンに出力を表示します。初歩的なデバッグ出力にとても手軽です。
 
-#### Using the Logger Plugin
+#### Logger プラグインを使う
 
-The Logger Plugin &#8211; like all plugins &#8211; is added with the Mailer
-class' `registerPlugin()` method. It accepts an instance of
-`Swift_Plugins_Logger` in its constructor.
+Logger プラグインはほかのすべてのプラ群と同じように、Mailer
+クラスの `registerPlugin()` メソッドで追加されます。このクラスはコンストラクタのなかで `Swift_Plugins_Logger` のインスタンスで受け入れます。
 
-To use the Logger plugin:
+Logger プラグインを使うには:
 
- * Create an instance of the Mailer using any Transport you choose.
+ * 選んだトランスポートを使ってメーラーのインスタンスを作ります。
 
- * Create an instance of the a Logger implementation of
-   `Swift_Plugins_Logger`.
+ * `Swift_Plugins_Logger` の Logger 実装のインスタンスを作ります。
 
- * Create an instance of the `Swift_Plugins_LoggerPlugin`
-   class, passing the created Logger instance to its constructor.
+ * `Swift_Plugins_LoggerPlugin` クラスのインスタンスを作り、Logger インスタンスをコンストラクタに渡します。
 
- * Register the plugin using the Mailer's `registerPlugin()`
-   method.
+ * Mailer の `registerPlugin()` メソッドを使ってプラグインを登録します。
 
- * Continue using Swift Mailer to send messages as normal.
+ * 通常どおりメッセージを送るために Swift Mailer を使い続けます。
 
- * Dump the contents of the log with the logger's `dump()`
-   method.
+ * ロガーの `dump()` メソッドでログの内容を吐き出します。
 
-When Swift Mailer sends messages it will keep a log of all the interactions
-with the underlying Transport being used. Depending upon the Logger that has
-been used the behaviour will differ, but all implementations offer a way to
-get the contents of the log.
+Swift Mailer がメッセージを送信するとき、内蔵される Transport とのやりとりのすべてのログはすべて保存されます。Logger によってふるまいは異なりますが、すべての実装はログの内容を得るための手段を提供します。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the Mailer using any Transport
+    //トランスポートを使ってメーラーを作ります
     $mailer = Swift_Mailer::newInstance(
      Swift_SmtpTransport::newInstance('smtp.example.org', 25)
     );
 
-    //To use the ArrayLogger
+    //ArrayLogger を使うには
     $logger = new Swift_Plugins_Loggers_ArrayLogger();
     $mailer->registerPlugin(new Swift_Plugins_LoggerPlugin($logger));
 
-    //Or to use the Echo Logger
+    //もしくは Echo Logger を使うには
     $logger = new Swift_Plugins_Loggers_EchoLogger();
     $mailer->registerPlugin(new Swift_Plugins_LoggerPlugin($logger));
 
-    //Continue sending as normal
+    //通常どおり送信を続けます
     for ($lotsOfRecipients as $recipient) {
      ...
 
      $mailer->send( ... );
     }
 
-    // Dump the log contents
-    // NOTE: The EchoLogger dumps in realtime so dump() does nothing for it
+    // ログの内容を吐き出します
+    // NOTE: EchoLogger はリアルタイムで吐き出すので、dump() は何も行いません。
     echo $logger->dump();
 
-### Decorator Plugin
+### Decorator プラグイン
 
-Often there's a need to send the same message to multiple recipients, but with
-tiny variations such as the recipient's name being used inside the message
-body. The Decorator plugin aims to provide a solution for allowing these small
-differences.
+複数の受信者に同じメッセージを送信する必要があるが、メッセージボディ内部で使われる受信者の名前など、バリエーションがささいである場合がよくあります。Decorator プラグインはこれらの小さな違いに対するソリューションを提供することを目的としています。
 
-The decorator plugin works by intercepting the sending process of Swift
-Mailer, reading the email address in the To: field and then looking up a set
-of replacements for a template.
+Decorator プラグインは Swift Mailer の送信プロセスを傍受することで機能します。To: フィールドのメールアドレスを読み込み、テンプレート用の置き換えのセットを探します。
 
-While the use of this plugin is simple, it is probably the most commonly
-misunderstood plugin due to the way in which it works. The typical mistake
-users make is to try registering the plugin multiple times (once for each
-recipient) &#8211; inside a loop for example. This is incorrect.
+このプラグインの使い方はシンプルですが、動作方法が原因でおそらくはもっとも誤解されがちなプラグインです。ユーザーがやらかす典型的な間違いはプラグインを複数回登録しようとすることです (それぞれの受信者に1回) &#8211; たとえばループ内部に入れてしまうなどです。これは正しくありません。
 
-The Decorator plugin should be registered just once, but containing the list
-of all recipients prior to sending. It will use this list of recipients to
-find the required replacements during sending.
+Decorator プラグインは一度だけ登録されますが、送信に先駆けて、すべての受信者が含まれます。受信者のリストは送信のあいだの必須の置き換えを探すために使われます。
 
-#### Using the Decorator Plugin
+#### Decorator プラグインを使う
 
-To use the Decorator plugin, simply create an associative array of
-replacements based on email addresses and then use the mailer's
-`registerPlugin()` method to add the plugin.
+Decorator プラグインを使うには、メールアドレスにもとづいた置き換えの連想配列を作り、プラグインを追加するメーラーの `registerPlugin()` メソッドを使います。
 
-First create an associative array of replacements based on the email addresses
-you'll be sending the message to.
+最初に、メッセージを送信する相手のメールアドレスにもとづいて置き換えの連想配列を作ります。
 
 >**NOTE**
->The replacements array becomes a 2-dimensional array whose keys are the email
->addresses and whose values are an associative array of replacements for that
->email address. The curly braces used in this example can be any type of syntax
->you choose, provided they match the placeholders in your email template.
+>置き換えの配列は二次元配列になります。キーはメールアドレスで、値はそのメールアドレスに対する置き換えの連想配列です。メールテンプレートのなかのプレースホルダにこれらがマッチするという条件のもとで、この例に使われている波かっこは選んだ任意の構文のタイプになります。
 
     [php]
     $replacements = array();
@@ -275,16 +198,14 @@ you'll be sending the message to.
       );
     }
 
-Now create an instance of the Decorator plugin using this array of
-replacements and then register it with the Mailer. Do this only once!
+置き換えの配列を使ってDecorator プラグインのインスタンスを作り、Mailer で登録します。一度だけです！
 
     [php]
     $decorator = new Swift_Plugins_DecoratorPlugin($replacements);
 
     $mailer->registerPlugin($decorator);
 
-When you create your message, replace elements in the body (and/or the subject
-line) with your placeholders.
+メッセージを作るとき、ボディ (かつ/もしくは件名) の要素をプレースホルダに置き換えます。
 
     [php]
     $message = Swift_Message::newInstance()
@@ -299,46 +220,31 @@ line) with your placeholders.
       $message->addTo($user['email']);
     }
 
-When you send this message to each of your recipients listed in your
-`$replacements` array they will receive a message customized
-for just themselves. For example, the message used above when received may
-appear like this to one user:
+`$replacements` 配列に並べられているそれぞれの受信者にこのメッセージを送信するとき、彼らは自分たちのためにカスタマイズされたメッセージを受けとるだけです。たとえば、上記のメッセージが受信されたときににはあるユーザーには次のように表示されます。
 
     Subject: Important notice for smilingsunshine2009
 
     Hello smilingsunshine2009, we have reset your password to rainyDays
     Please log in and change it at your earliest convenience.
 
-While another use may receive the message as:
+一方で別の使い方ではメッセージを次のように受けとります。
 
     Subject: Important notice for billy-bo-bob
 
     Hello billy-bo-bob, we have reset your password to dancingOctopus
     Please log in and change it at your earliest convenience.
 
-While the decorator plugin provides a means to solve this problem, there are
-various ways you could tackle this problem without the need for a plugin.
-We're trying to come up with a better way ourselves and while we have several
-(obvious) ideas we don't quite have the perfect solution to go ahead and
-implement it. Watch this space.
+Decorator プラグインがこの問題を解決するための手段を提供している一方で、プラグインなしでこの問題に取り組む方法がいろいろあります。私たちは自分達自身でよりよい方法を考えだそうとしており、私たちにはいくつかの (疑う余地のない) アイディアがありますが、先に進んで実装する完璧なソリューションはありません。お見逃しなく。
 
-#### Providing Your Own Replacements Lookup for the Decorator
+#### Decorator のために独自の置き換えのルックアップを提供する
 
-Filling an array with replacements may not be the best solution for providing
-replacement information to the decorator. If you have a more elegant algorithm
-that performs replacement lookups on-the-fly you may provide your own
-implementation.
+配列に置き換えの値を満たすことが Decorator への置き換え情報を提供するためのベストなソリューションにはならないことがあります。即座に置き換えのルックアップを実行するもっとエレガントなアルゴリズムがある場合、自前の実装を提供することができます。
 
-Providing your own replacements lookup implementation for the Decorator is
-simply a matter of passing an instance of
-`Swift_Plugins_Decorator_Replacements` to the decorator
-plugin's constructor, rather than passing in an array.
+Decorator の自前の置き換えのルックアップ実装を提供することは 配列形式ではなく `Swift_Plugins_Decorator_Replacements` のインスタンスを Decorator プラグインのコンストラクタに渡すという問題です。
 
-The Replacements interface is very simple to implement since it has just one
-method: `getReplacementsFor($address)`.
+Replacements インターフェイスは1つのメソッド: `getReplacementsFor($address)` だけでとてもかんたんに実装できます。
 
-Imagine you want to look up replacements from a database on-the-fly, you might
-provide an implementation that does this. You need to create a small class.
+データベースから置き換えを即座に調べたい場合を想像してください。これを行う実装を提供することができます。小さなクラスを作る必要があります。
 
     [php]
     class DbReplacements implements Swift_Plugins_Decorator_Replacements {
@@ -359,19 +265,14 @@ provide an implementation that does this. You need to create a small class.
       }
     }
 
-Now all you need to do is pass an instance of your class into the Decorator
-plugin's constructor instead of passing an array.
+必要なことは配列の代わりにあなたのクラスのインスタンスを Decorator プラグインのコンストラクタに渡すことです。
 
     [php]
     $decorator = new Swift_Plugins_DecoratorPlugin(new DbReplacements());
 
     $mailer->registerPlugin($decorator);
 
-For each message sent, the plugin will call your class'
-`getReplacementsFor()` method to find the array of replacements
-it needs.
+送信されるそれぞれのメッセージに対して、プラグインは置き換えの配列を探すためにあなたのクラスの `getReplacementsFor()` メソッドを呼び出します。
 
 >**NOTE**
->If your lookup algorithm is case sensitive, you should transform the
->`$address` argument as appropriate &#8211; for example by
->passing it through `strtolower()`.
+>ルックアップアルゴリズムが大文字小文字を区別する場合、`$address` 引数を適切なものに変換すべきです &#8211; たとえば `strtolower()` 関数を通して引数を渡します。

@@ -1,124 +1,97 @@
-Creating Messages
-=================
+メッセージを作成する
+====================
 
-Creating messages in Swift Mailer is done by making use of the various MIME
-entities provided with the library.  Complex messages can be quickly created
-with very little effort.
+Swift Mailer でメッセージを作ることはライブラリによって提供されるさまざまな MIME エンティティを利用することで実現できます。ほんの少しの労力で複雑なメッセージをすばやく作れます。
 
-Quick Reference for Creating a Message
----------------------------------------
+メッセージ作成のクィックリファレンス
+------------------------------------
 
-You can think of creating a Message as being similar to the steps you perform
-when you click the Compose button in your mail client.  You give it a subject,
-specify some recipients, add any attachments and write your message.
+メッセージ作成はメールクライアントで「作成」ボタンをクリックするときに実行する手順と同じように考えることができます
+。件名を入力し、受信者を指定し、添付ファイルを追加してメッセージを書きます。メッセージを作るにはつぎの手順を踏みます。
 
-To create a Message:
+ * `Swift_Message` オブジェクトの `newInstance()` メソッドを呼び出します。
 
- * Call the `newInstance()` method of `Swift_Message`.
+ * `setFrom()` もしくは `setSender()` メソッドで送信アドレス (`From:`) をセットします。
 
- * Set your sender address (`From:`) with `setFrom()` or `setSender()`.
+ * `setSubject()` メソッドで件名をセットします。
 
- * Set a subject line with `setSubject()`.
+ * `setTo()`、`setCc()` かつ/もしくは `setBcc()` メソッドで受信者をセットします。
 
- * Set recipients with `setTo()`, `setCc()` and/or `setBcc()`.
+ * `setBody()` メソッドでボディをセットします。
 
- * Set a body with `setBody()`.
-
- * Add attachments with `attach()`.
+ * `attach()` メソッドで添付ファイルを追加します。
 
     [php]
     require_once 'lib/swift_required.php';
 
-    //Create the message
+    //メッセージオブジェクトを作ります
     $message = Swift_Message::newInstance()
 
-      //Give the message a subject
+      //メッセージの件名をセットします。
       ->setSubject('Your subject')
 
-      //Set the From address with an associative array
+      //送信者のアドレスを連想配列の形式でセットします。
       ->setFrom(array('john@doe.com' => 'John Doe'))
 
-      //Set the To addresses with an associative array
+      //受信者のアドレスを連想配列の形式でセットします
       ->setTo(array('receiver@domain.org', 'other@domain.org' => 'A name'))
 
-      //Give it a body
+      //本文を提供します
       ->setBody('Here is the message itself')
 
-      //And optionally an alternative body
+      //オプションとして代替ボディを追加します
       ->addPart('<q>Here is the message itself</q>', 'text/html')
 
-      //Optionally add any attachments
+      //オプションとして任意の添付ファイルを追加します
       ->attach(Swift_Attachment::fromPath('my-document.pdf'))
       ;
 
-Message Basics
---------------
+メッセージの基本
+-----------------
 
-A message is a container for anything you want to send to somebody else. There
-are several basic aspects of a message that you should know.
+メッセージはだれかに送りたいものを入れるコンテナです。知っておくべきメッセージの基本的な側面がいくつかあります。
 
-An e-mail message is made up of several relatively simple entities that are
-combined in different ways to achieve different results. All of these entities
-have the same fundamental outline but serve a different purpose. The Message
-itself can be defined as a MIME entity, an Attachment is a MIME entity, all
-MIME parts are MIME entities &#8211; and so on&#8230;
+メールのメッセージは異なる結果を得るために異なる方法で結びつけられるいくつかの相対的にシンプルなエンティティから構成されます。これらのエンティティすべてには同じ基本的なアウトラインがありますが、異なる目的を提供します。メッセージ自身は MIME エンティティとして定義できます。添付物は MIME エンティティです。すべての
+MIME パートは MIME エンティティの &#8211; や &#8230; などです。
 
-The basic units of each MIME entity &#8211; be it the Message itself, or an
-Attachment &#8211; are its Headers and its body:
+それぞれの MIME エンティティ &#8211; の基本ユニットはメッセージ自身で、添付物 &#8211; はヘッダーとボディです:
 
     Header-Name: A header value
     Other-Header: Another value
 
     The body content itself
 
-The Headers of a MIME entity, and its body must conform to some strict
-standards defined by various RFC documents. Swift Mailer ensures that these
-specifications are followed by using various types of object, including
-Encoders and different Header types to generate the entity.
+MIME エンティティのヘッダーとボディはさまざまな RFC ドキュメントによって定義される厳密な標準にしたがわなければなりません。エンティティを生成するためのエンコーダーと異なるヘッダーの種類を含めて、これらの仕様がさまざまな種類のオブジェクトによって使われることでこれらの仕様がフォローされることを Swift Mailer は保証します。
 
-### The Structure of a Message
+### メッセージの構造
 
-Of all of the MIME entities, a message &#8211; `Swift_Message`
-is the largest and most complex. It has many properties that can be updated
-and it can contain other MIME entities &#8211; attachments for example &#8211;
-nested inside it.
+すべての MIME エンティティのなかで、メッセージを扱う &#8211; `Swift_Message`
+はもっとも大きくてもっとも複雑です。更新可能な多くのプロパティが含まれ、ほかの MIME エンティティ &#8211; たとえば &#8211; などの添付物を含むことができます。その内部でネストにできます。
 
-A Message has a lot of different Headers which are there to present
-information about the message to the recipients' mail client. Most of these
-headers will be familiar to the majority of users, but we'll list the basic
-ones. Although it's possible to work directly with the Headers of a Message
-(or other MIME entity), the standard Headers have accessor methods provided to
-abstract away the complex details for you. For example, although the Date on a
-message is written with a strict format, you only need to pass a UNIX
-timestamp to `setDate()`.
+メッセージにはたくさんの異なるヘッダーが含まれます。ヘッダーにはメールクライアントへのメッセージに関する情報があります。これらのヘッダーの大半はユーザーのマジョリティに慣れ親しまれていますが、基本的なものだけを並べます。メッセージのヘッダー (もしくはほかの MIME エンティティ) と直接連携させることが可能ですが、複雑な詳細内容を引き出すために標準的なヘッダーにはアクセサメソッドが用意されています。たとえば、メッセージの日付は厳密なフォーマットで書かれていますが、UNIX のタイムスタンプを `setDate()` メソッドに渡す必要があるだけです。
 
-| Header | Description | Accessors |
+| ヘッダー | 説明 | アクセサ |
 | ------ | ----------- | --------- |
-| `Message-ID` | Identifies this message with a unique ID, usually containing the domain name and time generated | `getId()` / `setId()` |
-| `Return-Path` | Specifies where bounces should go (Swift Mailer reads this for other uses) | `getReturnPath()` / `setReturnPath()` |
-| `From` | Specifies the address of the person who the message is from. This can be multiple addresses if multiple people wrote the message. | `getFrom()` / `setFrom()` |
-| `Sender` | Specifies the address of the person who physically sent the message (higher precedence than `From:`) | `getSender()` / `setSender()` |
-| `To` | Specifies the addresses of the intended recipients | `getTo()` / `setTo()` |
-| `Cc` | Specifies the addresses of recipients who will be copied in on the message | `getCc()` / `setCc()` |
-| `Bcc` | Specifies the addresses of recipients who the message will be blind-copied to. Other recipients will not be aware of these copies. | `getBcc()` / `setBcc()` |
-| `Reply-To` | Specifies the address where replies are sent to | `getReplyTo()` / `setReplyTo()` |
-| `Subject` | Specifies the subject line that is displayed in the recipients' mail client | `getSubject()` / `setSubject()` |
-| `Date` | Specifies the date at which the message was sent | `getDate()` / `setDate()` |
-| `Content-Type` | Specifies the format of the message (usually text/plain or text/html) | `getContentType()` / `setContentType()` |
-| `Content-Transfer-Encoding` | Specifies the encoding scheme in the message | `getEncoder()` / `setEncoder()` |
+| `Message-ID` | ユニーク ID でこのメッセージを見わけます。 通常はドメインと生成された時刻を含みます。| `getId()` / `setId()` |
+| `Return-Path` | バウンスの行き先を指定します (Swift Mailer はほかの用途のためにこれを読み込みます) | `getReturnPath()` / `setReturnPath()` |
+| `From` | メッセージの送り主のアドレスを指定します。複数のひとがメッセージを書いたのであれば複数のアドレスが指定可能です。| `getFrom()` / `setFrom()` |
+| `Sender` |物理的にメッセージを送信した人物のアドレスを指定します (`From:` よりも優先順位が高いです) | `getSender()` / `setSender()` |
+| `To` | 予定された受信者のアドレスを指定します | `getTo()` / `setTo()` |
+| `Cc` | メッセージにコピーされる受信者のアドレスを指定します | `getCc()` / `setCc()` |
+| `Bcc` | ブラインドコピーされるメッセージを送る受信者のアドレスを指定します。これらのコピーがほかの受信者の目に入ることはありません。 | `getBcc()` / `setBcc()` |
+| `Reply-To` | 返信が送信されるアドレスを指定します | `getReplyTo()` / `setReplyTo()` |
+| `Subject` | 受信者のメールクライアントに表示される件名の行を指定します | `getSubject()` / `setSubject()` |
+| `Date` | メッセージが送信された日付を指定します | `getDate()` / `setDate()` |
+| `Content-Type` | メッセージのフォーマットを指定します (通常は text/plain または text/html) | `getContentType()` / `setContentType()` |
+| `Content-Transfer-Encoding` | メッセージのエンコーディングスキーマを指定します | `getEncoder()` / `setEncoder()` |
 
-### Working with a Message Object
+### メッセージオブジェクトに取り組む
 
-Although there are a lot of available methods on a message object, you only
-need to make use of a small subset of them. Usually you'll use
-`setSubject()`, `setTo()` and
-`setFrom()` before setting the body of your message with
-`setBody()`.
+メッセージオブジェクトで利用可能なたくさんのメソッドが用意されていますが、これらの小さなサブセットを使う必要があるだけです。通常は`setBody()` メソッドでメッセージのボディをセットする前に `setSubject()`、`setTo()` と
+`setFrom()` メソッドを使います。
 
-Calling methods is simple. You just call them like functions, but using the
-object operator "`<![CDATA[->]]>`" to do so. If you've created
-a message object and called it `$message` then you'd set a
-subject on it like so:
+
+メソッドを呼び出す方法はシンプルです。関数のように呼び出すだけです。しかし、オブジェクト演算子の "`<![CDATA[->]]>`" を使うことです。メッセージオブジェクトを作り、それを `$message` とすれば、次のように件名をセットしたことになります:
 
     [php]
     require_once 'lib/swift_required.php';  
@@ -126,10 +99,9 @@ subject on it like so:
     $message = Swift_Message::newInstance();
     $message->setSubject('My subject');
 
-All MIME entities (including a message) have a `toString()`
-method that you can call if you want to take a look at what is going to be
-sent. For example, if you `<![CDATA[echo
-$message->toString();]]>` you would see something like this:
+すべての MIME エンティティ (メッセージを含む) には何が送られているのかみたい場合に呼び出すことのできるhave a `toString()`
+メソッドが用意されています。たとえば、`<![CDATA[echo
+$message->toString();]]>` を実行すれば、つぎのような内容を見ることになります:
 
 
     Message-ID: <1230173678.4952f5eeb1432@swift.generated>
@@ -143,294 +115,229 @@ $message->toString();]]>` you would see something like this:
 
     Here is the message
 
-We'll take a closer look at the methods you use to create your message in the
-following sections.
+次の節でメッセージを作るために使うメソッドをよく見てみることにします。
 
-Adding Content to Your Message
+メッセージにコンテンツを加える
 ------------------------------
 
-Rich content can be added to messages in Swift Mailer with relative ease by
-calling methods such as setSubject(), setBody(), addPart() and attach().
+Swift Mailer においてリッチコンテンツは `setSubject()`、`setBody()`、`addPart()` や `attach()` などのメソッドを呼び出すことで比較的かんたんにメソッドに追加できます。
 
-### Setting the Subject Line
+### 件名の行をセットする
 
-The subject line, displayed in the recipients' mail client can be set with the
-setSubject() method, or as a parameter to Swift_Message::newInstance().
+受信者のメールクライアントに表示される件名の行は `setSubject()` メソッドでセットできます。もしくは `Swift_Message::newInstance()` のパラメータとしてセットできます。
 
-To set the subject of your Message:
+メッセージの件名をセットするには:
 
- * Call the `setSubject()` method of the Message, or specify it
-   at the time you create the message.
+ * メッセージの `setSubject()` メソッドを呼び出すもしくはメッセージを作るたびに指定します
 
-    // Pass it as a parameter when you create the message
+    // メッセージを作るときにパラメータとしてセットします
     $message = Swift_Message::newInstance('My amazing subject');
 
-    // Or set it after like this
+    // もしくはつぎのようにセットします
     $message->setSubject('My amazing subject');
 
-### Setting the Body Content
+### ボディのコンテンツを設定する
 
-The body of the message &#8211; seen when the user opens the message &#8211;
-is specified by calling the setBody() method. If an alternative body is to be
-included addPart() can be used.
+ユーザーがメッセージを開くときメッセージのボディは `setBody()` メソッドを呼び出すことで指定されます。代替ボディは `addPart()` メソッドで含めることができます。
 
-The body of a message is the main part that is read by the user. Often people
-want to send a message in HTML format (`text/html`), other
-times people want to send in plain text (`text/plain`), or
-sometimes people want to send both versions and allow the recipient to chose
-how they view the message.
+メッセージのボディはユーザーによって読まれるメインパートです。HTML フォーマット (`text/html`) やプレーンテキスト (`text/plain`) でメッセージを送ったり、もしくは両方のバージョンで送り受信者がメッセージを見る方法を選んでもらえるようにしたことがあります。
 
-As a rule of thumb, if you're going to send a HTML email, always include a
-plain-text equivalent of the same content so that users who prefer to read
-plain text can do so.
+経験則として、HTML メールを送ろうとする場合、プレーンテキストを好むユーザーが読めるように同じ内容のプレーンテキストをつねに含めておきます。
 
-To set the body of your Message:
+メッセージのボディをセットするには:
 
- * Call the `setBody()` method of the Message, or specify it at
-   the time you create the message.
+ * メッセージの `setBody()` メソッドを呼び出すか、メッセージを作るたびに指定します
 
- * Add any alternative bodies with `addPart()`.
+ * `addPart()` メソッドで代替ボディを追加します
 
-If the recipient's mail client offers preferences for displaying text vs. HTML then
-the mail client will present that part to the user where available.  In other cases
-the mail client will display the "best" part it can - usually HTML if you've included
-HTML.
+受信者のメールクライアントがテキスト vs. HTML を表示するためのプリファレンスを提供する場合、メールクライアントはユーザーが利用可能なパートを表します。ほかのケースではメールクライアントは「ベストな」パートを表示します - HTML を含めていれば通常は HTML になります。
 
     [php]
-    //Pass it as a parameter when you create the message
+    //メッセージを作るときにパラメータとして渡します
     $message = Swift_Message::newInstance('Subject here', 'My amazing body');  
 
-    //Or set it after like this
+    //もしくはつぎのように後でセットします
     $message->setBody('My <em>amazing</em> body', 'text/html');
 
-    //Add alternative parts with addPart()
+    //addPart() メソッドで代替パートを追加します
     $message->addPart('My amazing body in plain text', 'text/plain');
 
-Attaching Files
----------------
+ファイルを添付する
+------------------
 
-Attachments are downloadable parts of a message and can be added by calling
-the attach() method on the message. You can add attachments that exist on
-disk, or you can create attachments on-the-fly.
+添付ファイルはメッセージのダウンロード可能な部分で、メッセージの `attach()` メソッドを呼び出すことで追加できます。ディスクに存在しているファイルを追加することができます。もしくは添付ファイルを即座に作ることもできます。
 
-Attachments are actually an interesting area of Swift Mailer and something
-that could put a lot of power at your fingertips if you grasp the concept
-behind the way a message is held together.
+添付ファイルは興味深い問題領域でメッセージがまとまっている方法の背景にあるコンセプトを理解していれば、Swift Mailer から多くの力を得られます。
 
-Although we refer to files sent over e-mails as "attachments" &#8211; because
-they're attached to the message &#8211; lots of other parts of the message are
-actually "attached" even if we don't refer to these parts as attachments.
+メールを通じて送られるファイルを "添付物" と言い表してきました &#8211; これらはメッセージに添付されるからです &#8211; メッセージのほかの多くのパートは、これらを添付物として言い表さなくても、実際には「添付されます」。
 
-File attachments are created by the `Swift_Attachment` class
-and then attached to the message via the `attach()` method on
-it. For all of the "every day" MIME types such as all image formats, word
-documents, PDFs and spreadsheets you don't need to explicitly set the
-content-type of the attachment, though it would do no harm to do so. For less
-common formats you should set the content-type &#8211; which we'll cover in a
-moment.
+ファイルの添付は `Swift_Attachment` クラスによって作られ `attach()` メソッドを通じてメッセージに添付されます。画像フォーマット、Word ドキュメントや PDF とスプレッドシートなど "毎日使う" MIME-types に関して、添付ファイルの Content-Type を明示的にセットする必要はありません。セットされていなくても害はありません。より共通性の少ないフォーマットに関しては、 Content-Type をセットすべきです　&#8211; それらのフォーマットはそのうちカバーされるようになります。
 
-### Attaching Existing Files
+### 既存のファイルを添付する
 
-Files that already exist, either on disk or at a URL can be attached to a
-message with just one line of code, using Swift_Attachment::fromPath().
+ディスクもしくは URL にすでに存在しているファイルは `Swift_Attachment::fromPath()` を使って１行でメッセージに添付できます。
 
-You can attach files that exist locally, or if your PHP installation has
-`allow_url_fopen` turned on you can attach files from other
-websites.
+ローカルに存在するファイルを添付することができます。`allow_url_fopen` ディレクティブが有効であれば、ほかのウェブサイトからファイルを添付することができます。
 
-To attach an existing file:
+既存のファイルを添付するには:
 
- * Create an attachment with `Swift_Attachment::fromPath()`.
+ * `Swift_Attachment::fromPath()` で添付ファイルを作ります
 
- * Add the attachment to the message with `attach()`.
+ * `attach()` メソッドでメッセージに添付します。
 
-The attachment will be presented to the recipient as a downloadable file with
-the same filename as the one you attached.
+添付ファイルは添付時と同じ名前でダウンロード可能なファイルとして受信者に示されます。
 
     [php]
-    //Create the attachment
-    // * Note that you can technically leave the content-type parameter out
+    //添付ファイルを作ります
+    // * 技術的には Content-Type パラメータを省くことができることにご注意ください
     $attachment = Swift_Attachment::fromPath('/path/to/image.jpg', 'image/jpeg');  
 
-    //Attach it to the message
+    //メッセージに添付します
     $message->attach($attachment);
 
 
-    //The two statements above could be written in one line instead
+    //上記の2つのステートメントは１行に書き換えることができます
     $message->attach(Swift_Attachment::fromPath('/path/to/image.jpg'));
 
 
-    //You can attach files from a URL if allow_url_fopen is on in php.ini
+    //php.ini の allow_url_fopen ディレクティブが有効であれば URL からファイルを添付することができます
     $message->attach(Swift_Attachment::fromPath('http://site.tld/logo.png'));
 
-### Setting the Filename
+### ファイル名を設定する
 
-Usually you don't need to explicitly set the filename of an attachment because
-the name of the attached file will be used by default, but if you want to set
-the filename you use the setFilename() method of the Attachment.
+通常は添付ファイルの名前を明示する必要はありません。添付ファイルの名前はデフォルトで使われるからです。しかしファイル名をセットしたい場合は Attachment オブジェクトの `setFilename()` メソッドを使うことができます。
 
-To change the filename of an attachment:
+添付ファイルの名前を変更するには:
 
- * Call its `setFilename()` method.
+ * `setFilename()` メソッドを呼び出します。
 
-The attachment will be attached in the normal way, but meta-data sent inside
-the email will rename the file to something else.
+添付ファイルは通常どおりに添付されますが、メール内部で送られるメタデータはファイルを別のものにリネームします。
 
     [php]
-    //Create the attachment and call its setFilename() method
+    //添付ファイルを作り setFilename() メソッドを呼び出します
     $attachment = Swift_Attachment::fromPath('/path/to/image.jpg')
       ->setFilename('cool.jpg');
 
 
-    //Because there's a fluid interface, you can do this in one statement
+    //流れるようなインターフェイスが実装されているので、1行で書くことができます
     $message->attach(
       Swift_Attachment::fromPath('/path/to/image.jpg')->setFilename('cool.jpg')
     );
 
-### Attaching Dynamic Content
+### 動的なコンテンツを添付する
 
-Files that are generated at runtime, such as PDF documents or images created
-via GD can be attached directly to a message without writing them out to disk.
-Use the standard Swift_Attachment::newInstance() method.
+PDF ドキュメントや GD を通して作られた画像はディスクに直接書き込まなくても直接メッセージに添付することができます。標準の `Swift_Attachment::newInstance()` メソッドを使います。
 
-To attach dynamically created content:
+コンテンツを動的に添付するには:
 
- * Create your content as you normally would.
+ * 通常どおりにコンテンツを作ります。
 
- * Create an attachment with `Swift_Attachment::newInstance()`,
-   specifying the source data of your content along with a name and the
-   content-type.
+ * `Swift_Attachment::newInstance()` で添付ファイルを作り、名前と Content-Type と一緒にコンテンツのソースデータを指定します。
 
- * Add the attachment to the message with `attach()`.
-
-The attachment will be presented to the recipient as a downloadable file
-with the filename and content-type you specify.
+ * `attach()` メソッド添付ファイルをメッセージに追加します。
+添付ファイルは受信者にダウンロード可能なファイルとして指定したファイル名と Content-Type と一緒に表示されます。
 
 >**NOTE**
->If you would usually write the file to disk anyway you should just attach it with
->`Swift_Attachment::fromPath()` since this will use less memory.
+>とにかくいつもファイルをディスクに書き込みたいのであれば、メモリの使用量が少なくてすむ `Swift_Attachment::fromPath()` メソッドで添付すべきです。
 
     [php]
-    //Create your file contents in the normal way, but don't write them to disk
+    //通常の方法でファイルの内容を作りますが、ディスクに書き込みません
     $data = create_my_pdf_data();
 
-    //Create the attachment with your data
+    //データから添付ファイルを作ります
     $attachment = Swift_Attachment::newInstance($data, 'my-file.pdf', 'application/pdf');  
 
-    //Attach it to the message
+    //ファイルをメッセージに添付します
     $message->attach($attachment);
 
 
-    //You can alternatively use method chaining to build the attachment
+    //添付ファイルをビルドするためにメソッドチェーンを代わりに使うことができます
     $attachment = Swift_Attachment::newInstance()
       ->setFilename('my-file.pdf')
       ->setContentType('application/pdf')
       ->setBody($data)
       ;
 
-### Changing the Disposition
+### 開封を変更する
 
-Attachments just appear as files that can be saved to the Desktop if desired.
-You can make attachment appear inline where possible by using the
-setDisposition() method of an attachment.
+添付ファイルは望むのであればデスクトップに保存できるファイルとして表示されます。
+添付ファイルの setDisposition() メソッドを使うことで添付ファイルにインラインに表示させることができます。
 
-To make an attachment appear inline:
+添付ファイルをインラインに見えるようにするには
 
- * Call its `setDisposition()` method.
+ * `setDisposition()` メソッドを呼び出します。
 
-The attachment will be displayed within the email viewing window if the mail
-client knows how to display it.
+メールクライアントが表示方法をわかっているのであれば、添付ファイルはメール内容を表示するウィンドウの範囲で表示されます。
 
 >**NOTE**
->If you try to create an inline attachment for a non-displayable file type such as a
->ZIP file, the mail client should just present the attachment as normal.
+>ZIP アイルなど表示できない種類のファイルのためにインラインの添付ファイルを作ると、メールクライアントは通常の添付ファイルとしてあらわします。
 
     [php]
-    //Create the attachment and call its setDisposition() method
+    //添付ファイルを作り setDisposition() メソッドを呼び出します
     $attachment = Swift_Attachment::fromPath('/path/to/image.jpg')
       ->setDisposition('inline');
 
 
-    //Because there's a fluid interface, you can do this in one statement
+    //流れるようなインターフェイスが実装されているので、1行で書けます
     $message->attach(
       Swift_Attachment::fromPath('/path/to/image.jpg')->setDisposition('inline')
     );
 
-### Embedding Inline Media Files
+### インラインメディアファイルを埋め込む
 
-Often people want to include an image or other content inline with a HTML
-message. It's easy to do this with HTML linking to remote resources, but this
-approach is usually blocked by mail clients. Swift Mailer allows you to embed
-your media directly into the message.
+メッセージと一緒に画像もしくはほかのコンテンツを含めたいことがよくあります。リモートリソースにリンクする HTML でこれを実現することはかんたんですが、通常は、このアプローチはメールクライアントによってブロックされます。Swift Mailer はメディアをメッセージに直接埋め込むことを可能にします。
 
-Mail clients usually block downloads from remote resources because this
-technique was often abused as a mean of tracking who opened an email. If
-you're sending a HTML email and you want to include an image in the message
-another approach you can take is to embed the image directly.
+メールクライアントは通常リモートリソースからのダウンロードをブロックします。このテクニックはメールを開いたのがだれなのか追跡するための手段として乱用されていたからです。HTML メールを送り、メッセージに画像を含めたい場合、とることのできる別のアプローチは画像を直接埋め込むことです。
 
-Swift Mailer makes embedding files into messages extremely streamlined. You
-embed a file by calling the `embed()` method of the message,
-which returns a value you can use in a `src` or
-`href` attribute in your HTML.
+Swift Mailer はメッセージへのファイル埋め込みを極限まで効率化します。`embed()` メソッドを呼び出すことでファイルを埋め込みます。このメソッドの戻り値は HTML の `src` もしくは `href` 属性として使うことができます。
 
-Just like with attachments, it's possible to embed dynamically generated
-content without having an existing file available.
+添付ファイルのように、既存のファイルを利用可能にしなくても動的にコンテンツを生成することが可能です。
 
-The embedded files are sent in the email as a special type of attachment that
-has a unique ID used to reference them within your HTML attributes. On mail
-clients that do not support embedded files they may appear as attachments.
+埋め込まれたファイルは HTML 属性の「なかで参照することのできるユニーク ID をもつ特別な種類の添付ファイルとしてメールに送信されます。 埋め込みファイルをサポートしないメールクライアントはそれらのファイルを添付ファイルとして表示することがあります。
 
-Although this is commonly done for images, in theory it will work for any
-displayable (or playable) media type. Support for other media types (such as
-video) is dependent on the mail client however.
+画像に関するの共通の作業を説明しましたが、理論的には任意の表示可能な (再生可能な) 種類のメディアでも動きます。しかしながら (ビデオなど)ほかの種類のメディアのサポートに関してはメールクライアントによります。
 
-#### Embedding Existing Files
+#### 既存のファイルを埋め込む
 
-Files that already exist, either on disk or at a URL can be embedded in a
-message with just one line of code, using Swift_EmbeddedFile::fromPath().
+ファイルがディスクもしくは URL にすでにあれば、`Swift_EmbeddedFile::fromPath()` メソッドを使うことで、1行でメッセージに埋め込むことができます。
 
-You can embed files that exist locally, or if your PHP installation has
-`allow_url_fopen` turned on you can embed files from other
-websites.
+ローカルに存在するファイルを埋め込むことができます。`allow_url_fopen` ディレクティブが有効であれば、ほかのウェブサイトからファイルを埋め込むこともできます。
 
-To embed an existing file:
+存在しているファイルを埋め込むには:
 
- * Create a message object with `Swift_Message::newInstance()`.
+ * `Swift_Message::newInstance()` でメッセージオブジェクトを作ります。
 
- * Set the body as HTML, and embed a file at the correct point in the message with `embed()`.
+ * ボディを HTML としてセットし、`embed()` メソッドでメッセージの正しいポイントでファイルを埋め込みます。
 
-The file will be displayed with the message inline with the HTML wherever its ID
-is used as a `src` attribute.
+`src` 属性として使われる HTML においてファイルはメッセージンラインで表示されます。
 
 >**NOTE**
->`Swift_Image` and `Swift_EmbeddedFile` are just aliases of one
->another.  `Swift_Image` exists for semantic purposes.
+>`Swift_Image` と `Swift_EmbeddedFile` はお互いが単なるエイリアスです。`Swift_Image` はセマンティックな目的のために用意されています。
 
 -
 
 >**NOTE**
->You can embed files in two stages if you prefer.  Just capture the return value of `embed()`
->in a variable and use that as the `src` attribute.
+>お望みであれば2段階でファイルを埋め込むことができます。`embed()` メソッドの戻り値をキャプチャし、それを `src` 属性として使います。
 
     [php]
-    //Create the message
+    //メッセージを作ります。
     $message = Swift_Message::newInstance('My subject');
 
-    //Set the body
+    //ボディをセットします。
     $message->setBody(
     '<html>' .
     ' <head></head>' .
     ' <body>' .
-    '  Here is an image <img src="' . //Embed the file
+    '  Here is an image <img src="' . //ファイルを埋め込みます
          $message->embed(Swift_Image::fromPath('image.png')) .
        '" alt="Image" />' .
     '  Rest of message' .
     ' </body>' .
     '</html>',
-      'text/html' //Mark the content-type as HTML
+      'text/html' // Content-Type を HTML としてセットします
     );
 
-    //You can embed files from a URL if allow_url_fopen is on in php.ini
+    //php.ini の allow_url_fopen ディレクティブに true がセットされている場合 URL からファイルを埋め込むことができます
     $message->setBody(
     '<html>' .
     ' <head></head>' .
@@ -445,8 +352,8 @@ is used as a `src` attribute.
     );
 
 
-    // If placing the embed() code inline becomes cumbersome
-    // it's easy to do this in two steps
+    // embed() メソッドのコードを置くとインラインが扱いにくくなります。
+    // 2ステップでこれをおこなうのはかんたんです
     $cid = $message->embed(Swift_Image::fromPath('image.png'));
 
     $message->setBody(
@@ -454,63 +361,56 @@ is used as a `src` attribute.
     ' <head></head>' .
     ' <body>' .
     '  Here is an image <img src="' . $cid . '" alt="Image" />' .
-    '  Rest of message' .
+    '  メッセージの残り' .
     ' </body>' .
     '</html>',
-      'text/html' //Mark the content-type as HTML
+      'text/html' //Content-Type を HTML としてマークします
     );
 
-#### Embedding Dynamic Content
+#### 動的なコンテンツを埋め込む
 
-Images that are generated at runtime, such as images created via GD can be
-embedded directly to a message without writing them out to disk. Use the
-standard Swift_Image::newInstance() method.
+GD など実行時に生成される画像はそれらをディスクに書き出さずにメッセージに直接埋め込むことができます。標準の `Swift_Image::newInstance()` メソッドを使います。
 
-To embed dynamically created content:
+動的に作られたコンテンツを埋め込むには:
 
- * Create a message object with `Swift_Message::newInstance()`.
+ * `Swift_Message::newInstance()` でメッセージオブジェクトを作ります。
 
- * Set the body as HTML, and embed a file at the correct point in the message
-   with `embed()`. You will need to specify a filename and a
-   content-type.
+ * ボディを HTML としてセットし、`embed()` メソッドでメッセージの正しいポイントでファイルを埋め込みます。ファイルの名前と Content-Type を指定する必要があります。
 
-The file will be displayed with the message inline with the HTML wherever its ID
-is used as a `src` attribute.
+ID が `src` 属性として使われる HTML によってファイルはメッセージインラインで表示されます。
 
 >**NOTE**
->`Swift_Image` and `Swift_EmbeddedFile` are just aliases of one
->another.  `Swift_Image` exists for semantic purposes.
+>`Swift_Image` と `Swift_EmbeddedFile` の関係はお互いがたんなるエイリアスです。`Swift_Image` はセマンティックな目的のために存在します。
 
 -
 
 >**NOTE**
->You can embed files in two stages if you prefer.  Just capture the return value of `embed()`
->in a variable and use that as the `src` attribute.
+>お望みであれば2つの段階でファイルを埋め込むことができます。`embed()` メソッドの戻り値をキャプチャし、それを `src` 属性として使います。
 
     [php]
-    //Create your file contents in the normal way, but don't write them to disk
+    //通常の方法でファイルの内容を作りますが、それらをディスクには書き込みません
     $img_data = create_my_image_data();
 
-    //Create the message
+    //メッセージを作ります
     $message = Swift_Message::newInstance('My subject');
 
-    //Set the body
+    //ボディをセットします
     $message->setBody(
     '<html>' .
     ' <head></head>' .
     ' <body>' .
-    '  Here is an image <img src="' . //Embed the file
+    '  Here is an image <img src="' . //ファイルを埋め込みます
          $message->embed(Swift_Image::newInstance($img_data, 'image.jpg', 'image/jpeg')) .
        '" alt="Image" />' .
     '  Rest of message' .
     ' </body>' .
     '</html>',
-      'text/html' //Mark the content-type as HTML
+      'text/html' //Content-Type を HTML としてマークします
     );
 
 
-    // If placing the embed() code inline becomes cumbersome
-    // it's easy to do this in two steps
+    // embed() のコードを置くとインラインが扱いにくくなります。
+    // 2つのステップでこれをおこなうのはかんたんです
     $cid = $message->embed(Swift_Image::newInstance($img_data, 'image.jpg', 'image/jpeg'));
 
     $message->setBody(
@@ -521,95 +421,76 @@ is used as a `src` attribute.
     '  Rest of message' .
     ' </body>' .
     '</html>',
-      'text/html' //Mark the content-type as HTML
+      'text/html' //Content-Type を HTML としてマークします
     );
 
-Adding Recipients to Your Message
----------------------------------
+メッセージに受信者を追加する
+----------------------------
 
-Recipients are specified within the message itself via setTo(), setCc() and
-setBcc(). Swift Mailer reads these recipients from the message when it gets
-sent so that it knows where to send the message to.
+`setTo()`、`setCc()` と `setBcc()` メソッドを通じてメッセージ自身の範囲で受信者が指定されます。どこでメッセージが送られたのかわかるように Swift Mailer はメッセージからこれらの受信者を読み込みます。
 
-Message recipients are one of three types:
+メッセージの受信者はつぎのタイプの1つです:
 
- * `To:` recipients &#8211; the primary recipients (required)
+ * `To:` 受信者 &#8211; 1番目の受信者 (必須)
 
- * `Cc:` recipients &#8211; receive a copy of the message
-   (optional)
+ * `Cc:` 受信者 &#8211; メッセージのコピーを受信します (オプション)
 
- * `Bcc:` recipients &#8211; hidden from other recipients
-   (optional)
+ * `Bcc:` 受信者 &#8211; ほかの受信者から隠します
+   (オプション)
 
-Each type can contain one, or several addresses. It's possible to list only
-the addresses of the recipients, or you can personalize the address by
-providing the real name of the recipient.
+それぞれのタイプは1つもしくは複数のアドレスを含みます。受信者のアドレスの一覧だけを表示することは可能です。もしくは受信者の本名を提供することでアドレスを個人化することができます。
 
 >**SIDEBAR**
->Syntax for Addresses
+>アドレスの構文
 >
->If you only wish to refer to a single email address (for example your `From:`
->address) then you can just use a string.
+>単独のメールアドレス (たとえば `From:` アドレス) を参照することだけがお望みであれば、単なる文字列を使うことができます。
 >
 >      [php]
 >      $message->setFrom('some@address.tld');
 >
->If you want to include a name then you must use an associative array.
+>名前を含めたいのであれば連想配列を使わなければなりません。
 >
 >     [php]
 >     $message->setFrom(array('some@address.tld' => 'The Name'));
 >
->If you want to include multiple addresses then you must use an array.
+>複数のアドレスを含めたいのであれば、配列を使わなければなりません。
 >
 >     [php]
 >     $message->setTo(array('some@address.tld', 'other@address.tld'));
 >
->You can mix personalized (addresses with a name) and non-personalized
->addresses in the same list by mixing the use of associative and non-associative
->array syntax.
+>連想配列と非連想配列の構文を組み合わせることで同じリストのなかで個人化 (名前とアドレス) と非個人化したアドレスを混ぜることができます。
 >
 >     [php]
 >     $message->setTo(array(
->       'recipient-with-name@example.org' => 'Recipient Name One',
->       'no-name@example.org', //Note that this is not a key-value pair
->       'named-recipient@example.org' => 'Recipient Name Two'
+>       'recipient-with-name@example.org' => '受信者の名前その1',
+>       'no-name@example.org', //これはキーバリューのペアではないことにご注意ください
+>       'named-recipient@example.org' => '受信者の名前その2'
 >     ));
 
-### Setting `To:` Recipients
+### `To:` 受信者を設定する
 
-`To:` recipients are required in a message and are set with the
-`setTo()` or `addTo()` methods of the message.
+`To:` 受信者はメッセージに必須項目でメッセージの 
+`setTo()` もしくは `addTo()` メソッドでセットされます。
 
-To set `To:` recipients, create the message object using either
-`new Swift_Message( ... )` or
-`Swift_Message::newInstance( ... )`, then call the
-`setTo()` method with a complete array of addresses, or use the
-`addTo()` method to iteratively add recipients.
+`To:` 受信者をセットするには、`new Swift_Message( ... )` もしくは
+`Swift_Message::newInstance( ... )`　のどちらを使ってメッセージオブジェクトを作り、アドレスの完全な配列で
+`setTo()` メソッドを呼び出すか、受信者を1人ずつ追加するには `addTo()` メソッドを呼び出します。
 
-The `setTo()` method accepts input in various formats as described earlier in
-this chapter. The `addTo()` method takes either one or two parameters. The
-first being the email address and the second optional parameter being the name
-of the recipient.
+`setTo()` メソッドはこの章の最初のほうで説明したさまざまなフォーマットでのインプットを受け入れます。`addTo()` メソッドは1つもしくは2つのパラメータのどちらをとります。1番目のパラメータはメールアドレスで2番目のオプションパラメータは受信者の名前です。
 
-`To:` recipients are visible in the message headers and will be
-seen by the other recipients.
+`To:` 受信者はメッセージヘッダーのなかで見ることが可能で、ほかの受信者に見えます。
 
 >**NOTE**
->You should also use the `setTo()` method when you want to
->perform a `batchSend()` to deliver the message to each
->recipient separately without exposing all of the addresses. In this scenario
->Swift Mailer performs some internal transformations on the message during the
->sending process.
+>すべてのアドレスを見せずにそれぞれの受信者にメッセージをデリバリするために `batchSend()` メソッドを実行したいときは `setTo()` メソッドも使うべきです。このシナリオでは Swift Mailer はプロセス送信のあいだにメッセージ上で内部の変換を実行します。
 
 -
 
 >**NOTE**
->Multiple calls to `setTo()` will not add new recipients &#8211;
->each call overrides the previous calls. If you want to iteratively add
->recipients, use the `addTo()` method.
+>`setTo()` メソッドを複数回呼び出しても新しい受信者は追加されません &#8211;
+>それぞれの呼び出しは以前の呼び出しをオーバーライドします。受信者を1人ずつ追加したいのであれば、`addTo()` メソッドを使います。
 
     [php]
-    //Using setTo() to set all recipients in one go
+    //すべての受信者を一度にセットするには setTo() メソッドを使います
     $message->setTo(array(
       'person1@example.org',
       'person2@otherdomain.org' => 'Person 2 Name',
@@ -618,36 +499,26 @@ seen by the other recipients.
       'person5@example.org' => 'Person 5 Name'
     ));
 
-    //Using addTo() to add recipients iteratively
+    //受信者を1人ずつ追加するには addTo() メソッドを使います
     $message->addTo('person1@example.org');
     $message->addTo('person2@example.org', 'Person 2 Name');
 
-### Setting `Cc:` Recipients
+### `Cc:` 受信者を設定する
 
-`Cc:` recipients are set with the
-`setCc()` or `addCc()` methods of the message.
+`Cc:` 受信者はメッセージの `setCc()` もしくは `addCc()` メソッドでセットされます。
 
-To set `Cc:` recipients, create the message object using either
-`new Swift_Message( ... )` or
-`Swift_Message::newInstance( ... )`, then call the
-`setCc()` method with a complete array of addresses, or use the
-`addCc()` method to iteratively add recipients.
+`Cc:` 受信者をセットするには、`new Swift_Message( ... )` もしくは
+`Swift_Message::newInstance( ... )` のどちらを使ってメッセージオブジェクトを作り、`setCc()` メソッドを呼び出します。アドレスの完全な配列もしくは、受信者を1人ずつ追加するには `addCc()` メソッドを使います。
 
-The `setCc()` method accepts input in various formats as described earlier in
-this chapter. The `addCc()` method takes either one or two parameters. The
-first being the email address and the second optional parameter being the name
-of the recipient.
+`setCc()` メソッドはこの章の最初のほうで説明したさまざまなフォーマットでのインプットを受け入れます。`addCc()` メソッドは1つもしくは2つのパラメータのどちらかをとります。1番目のパラメータはメールアドレスで2番目のオプションパラメータは受信者の名前です。
 
-`Cc:` recipients are visible in the message headers and will be
-seen by the other recipients.
+`Cc:` 受信者はメッセージヘッダーのなかで見ることが可能で、ほかの受信者に見えます。
 
 >**NOTE**
->Multiple calls to `setCc()` will not add new recipients &#8211;
->each call overrides the previous calls. If you want to iteratively add Cc:
->recipients, use the `addCc()` method.
+>`setCc()` メソッドへの複数の呼び出しは新しい受信者を追加しません &#8211; それぞれの呼び出しは以前の呼び出しをオーバーライドします。`Cc: ` 受信者を1人ずつ追加したいのであれば、`addCc()` メソッドを使います。
 
     [php]
-    //Using setCc() to set all recipients in one go
+    //すべての受信者を一度に設定するには setCc() メソッドを使います
     $message->setCc(array(
       'person1@example.org',
       'person2@otherdomain.org' => 'Person 2 Name',
@@ -656,45 +527,33 @@ seen by the other recipients.
       'person5@example.org' => 'Person 5 Name'
     ));
 
-    //Using addCc() to add recipients iteratively
+    //受信者を1人ずつ追加するには  addCc() メソッドを使います
     $message->addCc('person1@example.org');
     $message->addCc('person2@example.org', 'Person 2 Name');
 
-### Setting `Bcc:` Recipients
+### `Bcc:` 受信者を設定する
 
-`Bcc:` recipients receive a copy of the message without anybody
-else knowing it, and are set with the `setBcc()` or
-`addBcc` methods of the message.
+`Bcc:` 受信者はほかのひとに知られることなくメッセージのコピーを受けとり、`setBcc()` もしくは `addBcc` メソッドによってセットされます。
 
-To set `Bcc:` recipients, create the message object using
-either `new Swift_Message( ... )` or
-`Swift_Message::newInstance( ... )`, then call the
-`setBcc()` method with a complete array of addresses, or use
-the `addBcc()` method to iteratively add recipients.
+`Bcc:` 受信者をセットするには、`new Swift_Message( ... )` もしくは
+`Swift_Message::newInstance( ... )` かどちらかのメッセージオブジェクトを作り、then call the
+`setBcc()` メソッドを呼び出します with a complete array of addresses、もしくは `addBcc()` メソッドを使います。
 
-The `setBcc()` method accepts input in various formats as described earlier in
-this chapter. The `addBcc()` method takes either one or two parameters. The
-first being the email address and the second optional parameter being the name
-of the recipient.
+`setBcc()` メソッドはこの章の最初のほうで説明したさまざまなフォーマットでの入力を受け入れます。`addBcc()` メソッドは1つもしくは2つのパラメータのどちらかをとります。1番目はメールアドレスで2番目のオプションパラメータは受信者の名前です。
 
-Only the individual `Bcc:` recipient will see their address in
-the message headers. Other recipients (including other `Bcc:`
-recipients) will not see the address.
+個別の `Bcc:` 受信者はメッセージヘッダーのなかでかれらのアドレスを見るだけとなります。ほかの受信者 (ほかの `Bcc:`
+受信者を含む) にはアドレスは見えません。
 
 >**NOTE**
->You should not use `Bcc:` recipients as a mechanism for sending
->bulk email with undisclosed recipients. You should perform a
->`batchSend()` instead.
+>あきらかではない受信者でバルクメールを送信するためのメカニズムとして `Bcc:` 受信者を使うべきではありません。代わりに `batchSend()` メソッドを実行すべきです。
 
 -
 
 >**NOTE**
->Multiple calls to `setBcc()` will not add new recipients
->&#8211; each call overrides the previous calls. If you want to iteratively add
->Bcc: recipients, use the `addBcc()` method.
+>`setBcc()` メソッドへの複数の呼び出しは新しい受信者を追加しません &#8211; それぞれの呼び出しは以前の呼び出しをオーバーライドします。`Bcc: ` の受信者を1人ずつ追加したいのであれば、`addBcc()` メソッドを使います。
 
     [php]
-    //Using setBcc() to set all recipients in one go
+    //一度にすべての受信者を設定するには setBcc() メソッドを使います
     $message->setBcc(array(
       'person1@example.org',
       'person2@otherdomain.org' => 'Person 2 Name',
@@ -703,215 +562,170 @@ recipients) will not see the address.
       'person5@example.org' => 'Person 5 Name'
     ));
 
-    //Using addBcc() to add recipients iteratively
+    //受信者を1人ずつ追加するために addBcc() メソッドを使います
     $message->addBcc('person1@example.org');
     $message->addBcc('person2@example.org', 'Person 2 Name');
 
-Specifying Sender Details
--------------------------
+送信者の詳細を指定する
+-----------------------
 
-An email must include information about who sent it. Usually this is managed
-by the `From:` address, however there are other options.
+メールは送信者に関する情報を含まなければなりません。通常、これは `From:` アドレスによって管理されますが、ほかにもオプションがあります。
 
-The sender information is contained in three possible places:
+送信者の情報は最大で3つの場所に含まれます:
 
- * `From:` &#8211; the address(es) of who wrote the message
-   (required)
+ * `From:` &#8211; メッセージを書いたひとのアドレス (必須)
 
- * `Sender:` &#8211; the address of the single person who sent
-   the message (optional)
+ * `Sender:` &#8211; メッセージを送った1人のアドレス (オプション)
 
- * `Return-Path:` &#8211; the address where bounces should go
-   to (optional)
+ * `Return-Path:` &#8211; バウンスが向かうアドレス (オプション)
 
-You must always include a `From:` address by using
-`setFrom()` on the message. Swift Mailer will use this as the
-default `Return-Path:` unless otherwise specified.
+メッセージオブジェクトの `setFrom()` を使うことで `From:` アドレスをつねに含めなければなりません。ほかに指定しないかぎり、Swift Mailer はこれをデフォルトの `Return-Path:` として使います。
 
-The `Sender:` address exists because the person who actually
-sent the email may not be the person who wrote the email. It has a higher
-precedence than the `From:` address and will be used as the
-`Return-Path:` unless otherwise specified.
+`Sender:` アドレスが存在するのはメールを送信したひとがかならずしもメールを書いたひとではないからです。これは `From:` アドレスよりも優先順位が高く、ほかに指定されていないかぎり `Return-Path:` として使われます。unless otherwise specified.
 
-### Setting the `From:` Address
+### `From:` アドレスを設定する
 
-A `From:` address is required and is set with the
-`setFrom()` method of the message.
+`From:` アドレスは必須でメッセージの `setFrom()` メソッドでセットされます。
 
-`From:` addresses specify who actually wrote the email, and
-usually who sent it.
+`From:` アドレスは実際にメールを書いたひとと通常はそれを送ったひとを指定します。
 
-What most people probably don't realise is that you can have more than one
-`From:` address if more than one person wrote the email &#8211;
-for example if an email was put together by a committee.
+大半のひとが理解しないことは複数のひとがメールを書いた場合の複数の `From:` アドレスです &#8211;
+たとえば、メールが委員会によってまとめられた場合をあげることができます。
 
-To set the `From:` address(es):
+`From:` アドレスをセットするには:
 
- * Call the `setFrom()` method on the Message.
+ * メッセージオブジェクトの `setFrom()` メソッドを呼び出します。
 
-The `From:` address(es) are visible in the message headers and
-will be seen by the recipients.
+The `From:` アドレスはメッセージヘッダーで見ることが可能で、受信者が見ることになります。
 
 >**NOTE**
->If you set multiple `From:` addresses then you absolutely must
->set a `Sender:` address to indicate who physically sent the message.
+>複数の `From:` アドレスをセットすれば、物理的にメッセージを送る人を示す `Sender:` アドレスをセットしなければなりません。
 
     [php]
-    //Set a single From: address
+    //単独の From: アドレスをセットします
     $message->setFrom('your@address.tld');
 
-    //Set a From: address including a name
+    //名前を含む From: アドレスをセットします
     $message->setFrom(array('your@address.tld' => 'Your Name'));
 
-    //Set multiple From: addresses if multiple people wrote the email
+    //複数のひとがメールを書く場合、複数の From: アドレスをセットします
     $message->setFrom(array(
       'person1@example.org' => 'Sender One',
       'person2@example.org' => 'Sender Two'
     ));
 
-### Setting the `Sender:` Address
+### `Sender:` アドレスを設定する
 
-A `Sender:` address specifies who sent the message and is set
-with the `setSender()` method of the message.
+`Sender:` アドレスはメッセージを送る相手を指し示し、メッセージオブジェクトの `setSender()` メソッドでセットされます。
 
-To set the `Sender:` address:
+`Sender:` アドレスをセットするに:
 
- * Call the `setSender()` method on the Message.
+ * メソッドオブジェクトの `setSender()` メソッドを呼び出します。
 
-The `Sender:` address is visible in the message headers and
-will be seen by the recipients.
+メッセージヘッダーのなかで見える `Sender:` アドレスは受信者に見えます。
 
-This address will be used as the `Return-Path:` unless
-otherwise specified.
+ほかのものが指定されないかぎり、このアドレスが `Return-Path:` として使われます。
 
 >**NOTE**
->If you set multiple `From:` addresses then you absolutely must
->set a `Sender:` address to indicate who physically sent the message.
+>複数の `From:` アドレスを設定すると 誰がメッセージを送ったのかを示すために `Sender:` アドレスを設定しなければなりません。
 
-You must not set more than one sender address on a message because it's not
-possible for more than one person to send a single message.
+複数の送信者アドレスをセットすべきではありません。1つのメッセージを送るのに複数人を指定できないからです。
 
     [php]
     $message->setSender('your@address.tld');
 
-### Setting the `Return-Path:` (Bounce) Address
+### `Return-Path:` (Bounce) アドレスを設定する
 
-The `Return-Path:` address specifies where bounce notifications should
-be sent and is set with the `setReturnPath()` method of the message.
+`Return-Path:` アドレスはバウンス通知が送信される行き先を指定し、メッセージの `setReturnPath()` メソッドで設定されます。
 
-You can only have one `Return-Path:` and it must not include
-a personal name.
+用意できる `Return-Path:` は1つだけで、個人の名前を含めなくてもかまいません。
 
-To set the `Return-Path:` address:
+`Return-Path:` アドレスを設定するには:
 
- * Call the `setReturnPath()` method on the Message.
+ * メッセージオブジェクトの `setReturnPath()` メソッドを呼び出します。
 
-Bouce notifications will be sent to this address.
+バウンス通知はつぎのメールアドレスに送られます。
 
     [php]
     $message->setReturnPath('bounces@address.tld');
 
-Requesting a Read Receipt
+受信通知をリクエストする
 -------------------------
 
-It is possible to request a read-receipt to be sent to an address when the
-email is opened. To request a read receipt set the address with
-`setReadReceiptTo()`.
+メールが開かれたときにアドレスに送られる受信通知をリクエストすることは可能です。受信通知をリクエストするには `setReadReceiptTo()` メソッドとアドレスをセットします。
 
-To request a read receipt:
+受信通知をリクエストするには:
 
- * Set the address you want the receipt to be sent to with the `setReadReceiptTo()` method on the Message.
+ * 受信者に遅らせたいアドレスはメッセージオブジェクトの `setReadReceiptTo()` メソッドでセットします。
 
-When the email is opened, if the mail client supports it a notification will be sent to this address.
+メールが開かれたときに、メールクライアントがサポートしていれば、通知がそのアドレスに送られます。
 
 >**NOTE**
->Read receipts won't work for the majority of recipients since many mail
->clients auto-disable them. Those clients that will send a read receipt will
->make the user aware that one has been requested.
+>受信通知は受信者の大半には機能しません。多くのメールクライアントはこれらを自動的に無効にするからです。受信通知を送るこのようなクライアントはリクエストされたことをユーザーに伝えます。
 
     [php]
     $message->setReadReceiptTo('your@address.tld');
 
-Setting the Character Set
--------------------------
+文字集合を設定する
+------------------
 
-The character set of the message (and it's MIME parts) is set with the
-setCharset() method. You can also change the global default of UTF-8 by
-working with the Swift_Preferences class.
+メッセージの文字集合 (とこれは MIME の一部) は `setCharset()` メソッドで設定できます。Swift_Preferences クラスと連携してグローバルのデフォルトの文字集合である UTF-8 を変更することもできます。
 
-Swift Mailer will default to the UTF-8 character set unless otherwise
-overridden. UTF-8 will work in most instances since it includes all of the
-standard US keyboard characters in addition to most international characters.
+Swift Mailer のデフォルトの文字集合はオーバーライドされないかぎり UTF-8 です。UTF-8 は大半の事例でうまくゆきます。世界中の大半の文字に加えて標準の US キーボード文字をすべて含むからです。
 
-It is absolutely vital however that you know what character set your message
-(or it's MIME parts) are written in otherwise your message may be received
-completely garbled.
+これはメッセージ (もしくは MIME パート) がどんな文字集合で書かれているのか知っているとしても、絶対に必要不可欠です。
+さもなければメッセージがめちゃめちゃに表示される可能性があります。
 
-There are two places in Swift Mailer where you can change the character set:
+Swift Mailer で文字集合を変更できる場所は2ヶ所あります。
 
- * In the Swift_Preferences class
- * On each individual message and/or MIME part
+ * Swift_Preferences クラス
+ * それぞれ個別のメッセージかつ/もしくは MIME パート
 
-To set the character set of your Message:
+メッセージオブジェクトの文字集合を設定するにはつぎのようになります。
 
- * Change the global UTF-8 setting by calling
-   `Swift_Preferences::setCharset()`; or
+ * `Swift_Preferences::setCharset()` を呼び出してグローバルな UTF-8 を変更します。
 
- * Call the `setCharset()` method on the message or the MIME
-   part.
+ * メッセージもしくは MIME パートのうえで `setCharset()` メソッドを呼び出します。
 
     [php]
-    //Approach 1: Change the global setting (suggested)
+    //アプローチ 1: グローバル設定を変更します (おすすめ)
     Swift_Preferences::getInstance()->setCharset('iso-8859-2');
 
-    //Approach 2: Call the setCharset() method of the message
+    //アプローチ 2: メッセージの setCharset() メソッドを呼び出します。
     $message = Swift_Message::newInstance()
       ->setCharset('iso-8859-2');
 
-    //Apprach 3: Specify the charset when setting the body
+    //アプローチ 3: ボディをセットするときに文字集合を指定します。
     $message->setBody('My body', 'text/html', 'iso-8859-2');
 
-    //Approach 4: Specify the charset for each part added
+    //アプローチ 4: それぞれのパートごとに文字集合を指定します。
     $message->addPart('My part', 'text/plain', 'iso-8859-2');
 
-Setting the Line Length
------------------------
+行の長さを設定する
+------------------
 
-The length of lines in a message can be changed by using the
-`setMaxLineLength()` method on the message. It should be kept
-to less than 1000 characters.
+行の長さはメッセージの `setMaxLineLength()` メソッドを使うことで変更できます。1000文字未満に保つべきです。
 
-Swift Mailer defaults to using 78 characters per line in a message. This is
-done for historical reasons and so that the message can be easily viewed in
-plain-text terminals.
+デフォルトでは、Swift Mailer のメッセージの１行の文字数は78文字です。これにはプレーンテキストのターミナルでメッセージを見やすくするための歴史的な理由があります。
 
-To change the maximum length of lines in your Message:
+メッセージの行の最大長を変更するには:
 
- * Call the `setMaxLineLength()` method on the Message.
+ * メッセージオブジェクトの `setMaxLineLength()` メソッドを呼び出します。
 
-Lines that are longer than the line length specified will be wrapped between
-words.
+指定された行の長さよりも長い行は単語のあいだで折りたたまれます。
 
 >**NOTE**
->You should never set a maximum length longer than 1000 characters according to
->RFC 2822. Doing so could have unspecified side-effects such as truncating
->parts of your message when it is transported between SMTP servers.
+>RFC 2822 にしたがい、1000文字よりも長い最大長を設定すべてではありません。複数の SMTP サーバーのあいだでメッセージがトランスポートされるときにメッセージの一部の切り詰めなど意図しない副作用を引き起こす可能性があるからです。
 
     [php]
     $message->setMaxLineLength(1000);
 
-Setting the Message Priority
-----------------------------
+メッセージの優先順位を設定する
+------------------------------
 
-You can change the priority of the message with
-`setPriority()`. Setting the priority will not change the way
-your email is sent &#8211; it is purely an indicative setting for the
-recipient.
+`setPriority()` メソッドでメッセージの優先順位を変更できます。優先順位を送ることはメールの送信方法を変更することはありません &#8211; これは純粋に受信者に示すためだけの設定です。
 
-The priority of a message is an indication to the recipient what significance
-it has. Swift Mailer allows you to set the priority by calling the
-`setPriority` method. This method takes an integer value
-between 1 and 5:
+メッセージの優先順位は それがもつ重要性を受信者に示す方法です。Swift Mailer では `setPriority` メソッドを呼び出すことで優先順位を設定することができます。このメソッドは1と5のあいだの整数値をとります:
 
  * Highest
  * High
@@ -919,11 +733,11 @@ between 1 and 5:
  * Low
  * Lowest
 
-To set the message priority:
+メッセージの優先順位をセットします。
 
- * Set the priority as an integer between 1 and 5 with the `setPriority()` method on the Message.
+ * メッセージオブジェクトの `setPriority()` メソッドと1から5のあいだの整数を使って優先順位をセットします。
 
     [php]
-    //Indicate "High" priority
+    //"High" 優先順位を示します
     $message->setPriority(2);
 
